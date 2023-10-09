@@ -1,0 +1,12 @@
+.board-row {
+  display: flex;
+}
+
+.board {
+  border: 25px ridge rgb(167, 128, 105);
+  display: inline-block;
+}
+
+h1 {
+  color:rgb(138, 106, 87);
+}
