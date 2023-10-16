@@ -1,7 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Alegreya+Sans+SC');
 /* TODO:(Maintenance) keep chessboard border and text color the same, dropdown menu and black square color the same*/
 
 * {
   box-sizing: border-box;
+}
+
+body {
+  font-family: "Alegreya Sans SC", serif !important;
 }
 
 .dropdown-button {
@@ -32,4 +37,10 @@ h1 {
 
 .board-row {
   display: flex;
+}
+
+.square {
+  width: 90px;
+  height: 90px;
+  border: 0px;
 }
