@@ -4,43 +4,44 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
-const WRook = 'whiteRook.png';
-const WKnight = 'whiteKnight.png';
-const WBishop = 'whiteBishop.png';
-const WQueen = 'whiteQueen.png';
-const WKing = 'whiteKing.png';
-const WPawn = 'whitePawn.png';
-const BRook = 'blackRook.png';
-const BKnight = 'blackKnight.png';
-const BBishop = 'blackBishop.png';
-const BQueen = 'blackQueen.png';
-const BKing = 'blackKing.png';
-const BPawn = 'blackPawn.png';
+// TODO: get rid of these variables, change files to "WRook".png etc and put .png in the img src below
+// const "WRook" = 'whiteRook.png';
+// const "WKnight" = 'whiteKnight.png';
+// const "WBishop" = 'whiteBishop.png';
+// const "WQueen" = 'whiteQueen.png';
+// const "WKing" = 'whiteKing.png';
+// const "WPawn" = 'whitePawn.png';
+// const "BRook" = 'blackRook.png';
+// const "BKnight" = 'blackKnight.png';
+// const "BBishop" = 'blackBishop.png';
+// const "BQueen" = 'blackQueen.png';
+// const "BKing" = 'blackKing.png';
+// const "BPawn" = 'blackPawn.png';
 const blackSquareHighlight = "#edeaa6";
 const whiteSquareHighlight = "#f4f2ca";
 
 const emptyRow = () => {return [{piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}];};
 
 const initBoard = [ // TODO: turn this into a generative function, border default value?
-    [{piece: BRook, highlight: false}, {piece: BKnight, highlight: false}, {piece: BBishop, highlight: false}, {piece: BQueen, highlight: false}, {piece: BKing, highlight: false}, {piece: BBishop, highlight: false}, {piece: BKnight, highlight: false}, {piece: BRook, highlight: false}],
-    [{piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}],
+    [{piece: "BRook", highlight: false}, {piece: "BKnight", highlight: false}, {piece: "BBishop", highlight: false}, {piece: "BQueen", highlight: false}, {piece: "BKing", highlight: false}, {piece: "BBishop", highlight: false}, {piece: "BKnight", highlight: false}, {piece: "BRook", highlight: false}],
+    [{piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}],
     emptyRow(), emptyRow(), emptyRow(), emptyRow(),
-    [{piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}],
-    [{piece: WRook, highlight: false}, {piece: WKnight, highlight: false}, {piece: WBishop, highlight: false}, {piece: WQueen, highlight: false}, {piece: WKing, highlight: false}, {piece: WBishop, highlight: false}, {piece: WKnight, highlight: false}, {piece: WRook, highlight: false}],
+    [{piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}],
+    [{piece: "WRook", highlight: false}, {piece: "WKnight", highlight: false}, {piece: "WBishop", highlight: false}, {piece: "WQueen", highlight: false}, {piece: "WKing", highlight: false}, {piece: "WBishop", highlight: false}, {piece: "WKnight", highlight: false}, {piece: "WRook", highlight: false}],
 ];
 
 function whitePiece(piece) {
-    return piece === WRook || piece === WKnight || piece === WBishop || piece === WQueen || piece === WKing || piece === WPawn;
+    return piece === "WRook" || piece === "WKnight" || piece === "WBishop" || piece === "WQueen" || piece === "WKing" || piece === "WPawn";
 }
 
 function blackPiece(piece) {
-    return piece === BRook || piece === BKnight || piece === BBishop || piece === BQueen || piece === BKing || piece === BPawn;
+    return piece === "BRook" || piece === "BKnight" || piece === "BBishop" || piece === "BQueen" || piece === "BKing" || piece === "BPawn";
 }
 
 function Square({ theme, pieceSet, square, whiteSquare, onSquareClick }) {    
     return (
         <button className="square" onClick={onSquareClick} style={{background: whiteSquare ? (square.highlight ?  whiteSquareHighlight : theme.white) : (square.highlight ? blackSquareHighlight : theme.black)}}>
-            <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}`} width="75px" height="75px" onError = {e => e.target.src = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="}/>
+            <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}.png`} width="75px" height="75px" onError = {e => e.target.src = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="}/>
         </button>
     );
   }
@@ -61,7 +62,7 @@ function Row({ theme, pieceSet, row, firstSquareIsWhite, onRowClick }) {
 }
 
 function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
-    //const [WRook, WKnight, WBishop, WQueen, WKing, WPawn, BRook, BKnight, BBishop, BQueen, BKing, BPawn] = pieceSet;
+    //const ["WRook", "WKnight", "WBishop", "WQueen", "WKing", "WPawn", "BRook", "BKnight", "BBishop", "BQueen", "BKing", "BPawn"] = pieceSet;
     const [firstClick, setFirstClick] = useState(true);
     const [squareSelected, setSquareSelected] = useState(null);
     const [possibleMoves, setPossibleMoves] = useState([]);
@@ -91,7 +92,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                     // IMPORTANT Make separate parameter for highlight as third parameter should be true
                     let possibleMoves = getPossibleMoves(i, j, true, false);
                     for (let k = 0; k < possibleMoves.length; k++) {
-                        if (squares[possibleMoves[k][0]][possibleMoves[k][1]].piece === (whitesTurn ? WKing : BKing)) {
+                        if (squares[possibleMoves[k][0]][possibleMoves[k][1]].piece === (whitesTurn ? "WKing" : "BKing")) {
                             setGameOverStatus(whitesTurn ? "Black Wins!" : "White Wins!");
                             return;
                         }
@@ -208,8 +209,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                     if ((whitesTurn && blackPiece(squares[i][j].piece)) || (!whitesTurn && whitePiece(squares[i][j].piece))) {
                         let possibleMoves = getPossibleMoves(i, j, false, false);
                         for (let k = 0; k < possibleMoves.length; k++) {
-                            // Note: dont't actually need ternary check (even for castling), just looks cleaner than ... == WKing || ... == BKing)
-                            if (squares[possibleMoves[k][0]][possibleMoves[k][1]].piece === (whitesTurn ? WKing : BKing)) {
+                            // Note: dont't actually need ternary check (even for castling), just looks cleaner than ... == "WKing" || ... == "BKing")
+                            if (squares[possibleMoves[k][0]][possibleMoves[k][1]].piece === (whitesTurn ? "WKing" : "BKing")) {
                                 // revert test and stop checking
                                 squares[row][col].piece = testPieceToMove;
                                 squares[rowConsidered][colConsidered].piece = testCaptured;
@@ -233,8 +234,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             pawnHasntMoved = row === 1;
         }
         switch (piece) {
-            case BPawn:
-            case WPawn:
+            case "BPawn":
+            case "WPawn":
                 // Regular pawn moves
                 for (let i = 1; pawnHasntMoved ? i <= 2 : i <= 1; i++) {
                     if ((rowConsidered = row + (i * direction)) >= 0 && rowConsidered <= 7 && squares[rowConsidered][col].piece === null) {
@@ -256,8 +257,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 }
                 // TODO: En Passant
                 break;
-            case BKing:
-            case WKing:
+            case "BKing":
+            case "WKing":
                 for (let i = -1; i <= 1; i++) {
                     for (let j = -1; j <= 1; j++) {
                         // don't consider it if it's the same square the King is on, or if it's out of bounds
@@ -271,8 +272,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 }
                 // TODO: Castling!!
                 break;
-            case BKnight:
-            case WKnight:
+            case "BKnight":
+            case "WKnight":
                 for (let i = -2; i <= 2; i++) {
                     for (let j = -2; j <= 2; j++) {
                         if (i !== 0 && j !== 0 && Math.abs(i) !== Math.abs(j) && (rowConsidered = row + i) >= 0 && rowConsidered <= 7 && (colConsidered = col + j) >= 0 && colConsidered <= 7) {
@@ -284,17 +285,17 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                     }
                 }
                 break;
-            case BQueen:
-            case WQueen:
+            case "BQueen":
+            case "WQueen":
                 bypass = true;
-            case BBishop:
-            case WBishop:
+            case "BBishop":
+            case "WBishop":
                 list = list.concat(getPossibleMovesSelect(row, col, "diagonals", checkingKingSafety));
                 if (!bypass) {
                     break;
                 }
-            case BRook:
-            case WRook:
+            case "BRook":
+            case "WRook":
                 list = list.concat(getPossibleMovesSelect(row, col, "orthogonals", checkingKingSafety));                  
             default:
         }
@@ -364,7 +365,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
         <div className="board" style={{border: `25px ridge ${theme.ridge}`}}>
             <Row theme={theme} pieceSet={pieceSet} row={squares[0]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(0, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[1]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(1, col)} />
-            <Row theme={theme} ieceSet={pieceSet} row={squares[2]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(2, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[2]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(2, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[3]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(3, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[4]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(4, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[5]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(5, col)} />
@@ -409,10 +410,10 @@ export default function Game() {
             </div>
             <div className="column2">
                 <h2>White Captured Pieces:</h2>
-                {whiteCapturedPieces.map(elt => <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${elt}`} width="60px" height="60px"/>)}
+                {whiteCapturedPieces.map(elt => <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${elt}.png`} width="60px" height="60px"/>)}
                 <div style={{position:"absolute", top:"140px"}}>
                     <h2>Black Captured Pieces:</h2>
-                    {blackCapturedPieces.map(elt => <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${elt}`} width="60px" height="60px"/>)}
+                    {blackCapturedPieces.map(elt => <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${elt}.png`} width="60px" height="60px"/>)}
                 </div>
                 <div style={{position:"absolute", top:"280px"}}>
                     <h2>Options:</h2>
