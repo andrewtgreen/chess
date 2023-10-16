@@ -9,6 +9,10 @@ body {
   font-family: "Alegreya Sans SC", serif !important;
 }
 
+img {
+  transition: all .2s;
+}
+
 .dropdown-button {
   background-color: 'none';
   display: inline-block;
