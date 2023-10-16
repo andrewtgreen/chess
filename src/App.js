@@ -16,17 +16,17 @@ const BBishop = 'blackBishop.png';
 const BQueen = 'blackQueen.png';
 const BKing = 'blackKing.png';
 const BPawn = 'blackPawn.png';
-// const BLACK = "rgb(138, 106, 87)";
-// const WHITE = "rgb(224, 218, 202)";
+const blackSquareHighlight = "#edeaa6";
+const whiteSquareHighlight = "#f4f2ca";
 
-const emptyRow = () => {return [{piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}];};
+const emptyRow = () => {return [{piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}];};
 
 const initBoard = [ // TODO: turn this into a generative function, border default value?
-    [{piece: BRook, border: "0px"}, {piece: BKnight, border: "0px"}, {piece: BBishop, border: "0px"}, {piece: BQueen, border: "0px"}, {piece: BKing, border: "0px"}, {piece: BBishop, border: "0px"}, {piece: BKnight, border: "0px"}, {piece: BRook, border: "0px"}],
-    [{piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}, {piece: BPawn, border: "0px"}],
+    [{piece: BRook, highlight: false}, {piece: BKnight, highlight: false}, {piece: BBishop, highlight: false}, {piece: BQueen, highlight: false}, {piece: BKing, highlight: false}, {piece: BBishop, highlight: false}, {piece: BKnight, highlight: false}, {piece: BRook, highlight: false}],
+    [{piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}, {piece: BPawn, highlight: false}],
     emptyRow(), emptyRow(), emptyRow(), emptyRow(),
-    [{piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}, {piece: WPawn, border: "0px"}],
-    [{piece: WRook, border: "0px"}, {piece: WKnight, border: "0px"}, {piece: WBishop, border: "0px"}, {piece: WQueen, border: "0px"}, {piece: WKing, border: "0px"}, {piece: WBishop, border: "0px"}, {piece: WKnight, border: "0px"}, {piece: WRook, border: "0px"}],
+    [{piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}, {piece: WPawn, highlight: false}],
+    [{piece: WRook, highlight: false}, {piece: WKnight, highlight: false}, {piece: WBishop, highlight: false}, {piece: WQueen, highlight: false}, {piece: WKing, highlight: false}, {piece: WBishop, highlight: false}, {piece: WKnight, highlight: false}, {piece: WRook, highlight: false}],
 ];
 
 function whitePiece(piece) {
@@ -39,12 +39,8 @@ function blackPiece(piece) {
 
 function Square({ theme, pieceSet, square, whiteSquare, onSquareClick }) {    
     return (
-        <button
-            style={{background: whiteSquare ? theme.white : theme.black, width: "90px", height: "90px", border: square.border}}
-            className="square" onClick={onSquareClick}><img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}`} 
-            width="75px"
-            height="75px"
-            onError = {e => e.target.src = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="}/>
+        <button className="square" onClick={onSquareClick} style={{background: whiteSquare ? (square.highlight ?  whiteSquareHighlight : theme.white) : (square.highlight ? blackSquareHighlight : theme.black)}}>
+            <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}`} width="75px" height="75px" onError = {e => e.target.src = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="}/>
         </button>
     );
   }
@@ -303,7 +299,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             default:
         }
         if (highlight) {
-            list.forEach(elt => squares[elt[0]][elt[1]].border = "2px solid blue");
+            list.forEach(elt => squares[elt[0]][elt[1]].highlight = true);
         }
         return list;
     };
@@ -328,8 +324,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             const selectedCol = squareSelected[1];
             const pieceToMove = squares[selectedRow][selectedCol].piece;
             const captured = squares[row][col].piece;
-            squares[row][col] = {piece: pieceToMove, border: "0px"};
-            squares[selectedRow][selectedCol] = {piece: null, border: "0px"};
+            squares[row][col] = {piece: pieceToMove, highlight: true};
+            squares[selectedRow][selectedCol] = {piece: null, highlight: true};
             //set to opponents move
             onPlay(captured);
         };
@@ -338,16 +334,16 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             return;
         }
 
-        // clear borders: idea that is not working: possibleMoves.forEach(elt => squares[elt[0]][elt[1]].border = "0px"); (instead this will clear every border on the board)
+        // clear highlights: idea that is not working: possibleMoves.forEach(elt => squares[elt[0]][elt[1]].highlight = false"); (instead this will clear every highlight on the board)
         for (let i = 0; i <= 7; i++) {
             for (let j = 0; j <= 7; j++) {
-                squares[i][j].border = "0px";
+                squares[i][j].highlight = false;
             }
         }
         if ((whitesTurn && whitePiece(squares[row][col].piece)) || (!whitesTurn && blackPiece(squares[row][col].piece))) {
             // if castling: makeMove()
             setSquareSelected([row, col]);
-            squares[row][col].border = "5px solid red";
+            squares[row][col].highlight = true;
             setPossibleMoves(getPossibleMoves(row, col, true, true));
             setFirstClick(false);
             return;
@@ -375,18 +371,22 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             <Row theme={theme} pieceSet={pieceSet} row={squares[6]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(6, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[7]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(7, col)} />
         </div>
-        <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "White's Turn" : "Black's Turn")}</h1>
+        <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "white's turn" : "black's turn")}</h1>
       </>
     );
 } 
 
 export default function Game() {
-    const [pieceSet, setPieceSet] = useState("Original");
+    const [pieceSet, setPieceSet] = useState("original");
     const [history, setHistory] = useState([initBoard]); // TODO: add history
     const [currentMove, setCurrentMove] = useState(0);
     const whitesTurn = currentMove % 2 === 0;
     const currentSquares = history[0];
-    const [theme, setTheme] = useState({name: "Decaf", backgroundColor: "#d0c3bc", white: "rgb(224, 218, 202)", black: "rgb(138, 106, 87)", ridge: "rgb(167, 128, 105)"});
+    // Rule of thumb for themes: keep same white, set black, ridge is one tint lighter than black, background is five tints lighter than black
+    const decafTheme = {name: "decaf", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
+    const matchaTheme = {name: "matcha", white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
+    const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"}  //"#c09aa5"
+    const [theme, setTheme] = useState(decafTheme);
     const [whiteCapturedPieces, setWhiteCapturedPieces] = useState([]);
     const [blackCapturedPieces, setBlackCapturedPieces] = useState([]);
 
@@ -403,7 +403,7 @@ export default function Game() {
     }
 
     return (
-        <div style={{background: theme.black, color: theme.black}}>
+        <div style={{color: theme.black}}>
             <div className="column1">
                 <Board theme={theme} pieceSet={pieceSet} whitesTurn={whitesTurn} squares={currentSquares} onPlay={handlePlay}/>
             </div>
@@ -416,17 +416,29 @@ export default function Game() {
                 </div>
                 <div style={{position:"absolute", top:"280px"}}>
                     <h2>Options:</h2>
-                    <DropdownButton variant="default" className="dropdown-button" title={"Pieces: " + pieceSet}>
+                    {/*make dropdown button linked to 'BLACK' variable at top of page, make theme button (themes using https://maketintsandshades.com/)*/}
+                    {/* <Dropdown as={ButtonGroup}>
+                        <Dropdown.Toggle id="dropdown-custom-1">{"Pieces: " + pieces}</Dropdown.Toggle>
+                        <Dropdown.Menu bsPrefix="super-colors" style={{background: BLACK}} className="super-colors">
+                        <Dropdown.Item /*func={() => setSelectedTheme("evil princess")} active={pieces === "evil princess"}>evil princess</Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item /*func={() => setSelectedTheme("evil princess")} active={pieces === "original"}>original</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown> */}
+
+                    <DropdownButton variant="default" className="dropdown-button" title={"pieces: " + pieceSet}>
                         <Dropdown.Menu variant="default" style={{background: theme.black}} className="super-colors">
-                            <Dropdown.Item onClick={() => setPieceSet("Evil Princess")} active={pieceSet === "Evil Princess"}>Evil Princess</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setPieceSet("evil princess")} active={pieceSet === "evil princess"}>evil princess</Dropdown.Item>
                             <Dropdown.Divider />
-                            <Dropdown.Item onClick={() => setPieceSet("Original")} active={pieceSet === "Original"}>Original</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setPieceSet("original")} active={pieceSet === "original"}>original</Dropdown.Item>
                         </Dropdown.Menu>
                     </DropdownButton>
-                    <DropdownButton variant="default" className="dropdown-button" title={"Theme: " + theme.name}>
-                        <Dropdown.Menu variant="default" style={{background: theme.black}} className="super-colors">
+                    <DropdownButton variant="default" className="dropdown-button" title={"theme: " + theme.name}>
+                        <Dropdown.Menu variant="default" style={{background: theme.black}}>
+                            <Dropdown.Item onClick={() => setTheme(matchaTheme)} active={theme.name === "matcha"}>matcha</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(strawberryMilkTheme)} active={theme.name === "strawberry milk"}>strawberry milk</Dropdown.Item>
                             <Dropdown.Divider />
-                            <Dropdown.Item onClick={() => setTheme("Decaf")} active={theme.name === "Decaf"}>Decaf</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(decafTheme)} active={theme.name === "decaf"}>decaf</Dropdown.Item>
                         </Dropdown.Menu>
                     </DropdownButton>
                 </div>
