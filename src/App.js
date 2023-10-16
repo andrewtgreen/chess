@@ -16,8 +16,8 @@ const BBishop = 'blackBishop.png';
 const BQueen = 'blackQueen.png';
 const BKing = 'blackKing.png';
 const BPawn = 'blackPawn.png';
-const BLACK = "rgb(138, 106, 87)";
-const WHITE = "rgb(224, 218, 202)";
+// const BLACK = "rgb(138, 106, 87)";
+// const WHITE = "rgb(224, 218, 202)";
 
 const emptyRow = () => {return [{piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}, {piece: null, border: "0px"}];};
 
@@ -37,10 +37,10 @@ function blackPiece(piece) {
     return piece === BRook || piece === BKnight || piece === BBishop || piece === BQueen || piece === BKing || piece === BPawn;
 }
 
-function Square({ pieceSet, square, whiteSquare, onSquareClick }) {    
+function Square({ theme, pieceSet, square, whiteSquare, onSquareClick }) {    
     return (
         <button
-            style={{background: whiteSquare ? WHITE : BLACK, width: "90px", height: "90px", border: square.border}}
+            style={{background: whiteSquare ? theme.white : theme.black, width: "90px", height: "90px", border: square.border}}
             className="square" onClick={onSquareClick}><img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}`} 
             width="75px"
             height="75px"
@@ -49,22 +49,22 @@ function Square({ pieceSet, square, whiteSquare, onSquareClick }) {
     );
   }
 
-function Row({ pieceSet, row, firstSquareIsWhite, onRowClick }) {
+function Row({ theme, pieceSet, row, firstSquareIsWhite, onRowClick }) {
     return (
         <div className="board-row">
-            <Square pieceSet={pieceSet} square={row[0]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(0)} />
-            <Square pieceSet={pieceSet} square={row[1]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(1)} />
-            <Square pieceSet={pieceSet} square={row[2]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(2)} />
-            <Square pieceSet={pieceSet} square={row[3]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(3)} />
-            <Square pieceSet={pieceSet} square={row[4]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(4)} />
-            <Square pieceSet={pieceSet} square={row[5]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(5)} />
-            <Square pieceSet={pieceSet} square={row[6]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(6)} />
-            <Square pieceSet={pieceSet} square={row[7]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(7)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[0]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(0)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[1]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(1)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[2]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(2)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[3]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(3)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[4]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(4)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[5]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(5)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[6]} whiteSquare={firstSquareIsWhite} onSquareClick={() => onRowClick(6)} />
+            <Square theme={theme} pieceSet={pieceSet} square={row[7]} whiteSquare={!firstSquareIsWhite} onSquareClick={() => onRowClick(7)} />
         </div>
     )
 }
 
-function Board({ pieceSet, whitesTurn, squares, onPlay }) {
+function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     //const [WRook, WKnight, WBishop, WQueen, WKing, WPawn, BRook, BKnight, BBishop, BQueen, BKing, BPawn] = pieceSet;
     const [firstClick, setFirstClick] = useState(true);
     const [squareSelected, setSquareSelected] = useState(null);
@@ -365,15 +365,15 @@ function Board({ pieceSet, whitesTurn, squares, onPlay }) {
     
     return (
       <>
-        <div className="board">
-            <Row pieceSet={pieceSet} row={squares[0]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(0, col)} />
-            <Row pieceSet={pieceSet} row={squares[1]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(1, col)} />
-            <Row pieceSet={pieceSet} row={squares[2]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(2, col)} />
-            <Row pieceSet={pieceSet} row={squares[3]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(3, col)} />
-            <Row pieceSet={pieceSet} row={squares[4]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(4, col)} />
-            <Row pieceSet={pieceSet} row={squares[5]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(5, col)} />
-            <Row pieceSet={pieceSet} row={squares[6]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(6, col)} />
-            <Row pieceSet={pieceSet} row={squares[7]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(7, col)} />
+        <div className="board" style={{border: `25px ridge ${theme.ridge}`}}>
+            <Row theme={theme} pieceSet={pieceSet} row={squares[0]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(0, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[1]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(1, col)} />
+            <Row theme={theme} ieceSet={pieceSet} row={squares[2]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(2, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[3]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(3, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[4]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(4, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[5]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(5, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[6]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(6, col)} />
+            <Row theme={theme} pieceSet={pieceSet} row={squares[7]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(7, col)} />
         </div>
         <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "White's Turn" : "Black's Turn")}</h1>
       </>
@@ -386,14 +386,12 @@ export default function Game() {
     const [currentMove, setCurrentMove] = useState(0);
     const whitesTurn = currentMove % 2 === 0;
     const currentSquares = history[0];
-
-    const [backgroundColor, setBackgroundColor] = useState("#d0c3bc");
-
+    const [theme, setTheme] = useState({name: "Decaf", backgroundColor: "#d0c3bc", white: "rgb(224, 218, 202)", black: "rgb(138, 106, 87)", ridge: "rgb(167, 128, 105)"});
     const [whiteCapturedPieces, setWhiteCapturedPieces] = useState([]);
     const [blackCapturedPieces, setBlackCapturedPieces] = useState([]);
 
     // JS run when page renders and "Game" component mounts: (TODO: set this to a variable listened to for theme)
-    useEffect(() => {document.body.style = `background: ${backgroundColor}`;}, [backgroundColor]);
+    useEffect(() => {document.body.style = `background: ${theme.backgroundColor}`;}, [theme]);
 
     function handlePlay(captured) {
         if (whitePiece(captured)) {
@@ -405,9 +403,9 @@ export default function Game() {
     }
 
     return (
-        <div style={{background: BLACK}}>
+        <div style={{background: theme.black, color: theme.black}}>
             <div className="column1">
-                <Board pieceSet={pieceSet} whitesTurn={whitesTurn} squares={currentSquares} onPlay={handlePlay}/>
+                <Board theme={theme} pieceSet={pieceSet} whitesTurn={whitesTurn} squares={currentSquares} onPlay={handlePlay}/>
             </div>
             <div className="column2">
                 <h2>White Captured Pieces:</h2>
@@ -419,10 +417,16 @@ export default function Game() {
                 <div style={{position:"absolute", top:"280px"}}>
                     <h2>Options:</h2>
                     <DropdownButton variant="default" className="dropdown-button" title={"Pieces: " + pieceSet}>
-                        <Dropdown.Menu variant="default" style={{background: BLACK}} className="super-colors">
+                        <Dropdown.Menu variant="default" style={{background: theme.black}} className="super-colors">
                             <Dropdown.Item onClick={() => setPieceSet("Evil Princess")} active={pieceSet === "Evil Princess"}>Evil Princess</Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item onClick={() => setPieceSet("Original")} active={pieceSet === "Original"}>Original</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </DropdownButton>
+                    <DropdownButton variant="default" className="dropdown-button" title={"Theme: " + theme.name}>
+                        <Dropdown.Menu variant="default" style={{background: theme.black}} className="super-colors">
+                            <Dropdown.Divider />
+                            <Dropdown.Item onClick={() => setTheme("Decaf")} active={theme.name === "Decaf"}>Decaf</Dropdown.Item>
                         </Dropdown.Menu>
                     </DropdownButton>
                 </div>

@@ -5,21 +5,9 @@
 }
 
 .dropdown-button {
-  color: rgb(167, 128, 105);
   background-color: 'none';
   display: inline-block;
 }
-
-/* .super-colors {
-  background: green !important;
-  color: purple !important;
-} */
-
-/* @mixin button-variant {
-  btn-color: purple;
-} */
-
-
 
 /* Create two equal columns that floats next to each other */
 .column1 {
@@ -34,20 +22,8 @@
   padding: 10px;
 }
 
-/* Clear floats after the columns */
-/* .row:after {
-  content: "";
-  display: table;
-  clear: both;
-} */
-
 .board {
-  border: 25px ridge rgb(167, 128, 105);
   display: inline-block;
-}
-
-h1, h2, p {
-  color:rgb(138, 106, 87) !important;
 }
 
 h1 {
