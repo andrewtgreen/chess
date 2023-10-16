@@ -4,19 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
-// TODO: get rid of these variables, change files to "WRook".png etc and put .png in the img src below
-// const "WRook" = 'whiteRook.png';
-// const "WKnight" = 'whiteKnight.png';
-// const "WBishop" = 'whiteBishop.png';
-// const "WQueen" = 'whiteQueen.png';
-// const "WKing" = 'whiteKing.png';
-// const "WPawn" = 'whitePawn.png';
-// const "BRook" = 'blackRook.png';
-// const "BKnight" = 'blackKnight.png';
-// const "BBishop" = 'blackBishop.png';
-// const "BQueen" = 'blackQueen.png';
-// const "BKing" = 'blackKing.png';
-// const "BPawn" = 'blackPawn.png';
 const blackSquareHighlight = "#edeaa6";
 const whiteSquareHighlight = "#f4f2ca";
 
