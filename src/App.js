@@ -53,6 +53,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     const [squareSelected, setSquareSelected] = useState(null);
     const [possibleMoves, setPossibleMoves] = useState([]);
     const [gameOverStatus, setGameOverStatus] = useState(null);
+    const [highlightsToSave, setHighlightsToSave] = useState([]);
     const [whiteOOPossible, setWhiteOOPossible] = useState(true);
     const [blackOOPossible, setBlackOOPossible] = useState(true);
     const [whiteOOOPossible, setWhiteOOOPossible] = useState(true);
@@ -324,6 +325,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
         // Move piece in squareSelected to square clicked
         const makeMove = () => {
             //TODO: record points/pieces captured, add captured pieces as icons on the side
+            highlightsToSave.forEach(elt => squares[elt[0]][elt[1]].highlight = null);
             //remove piece from original square and set other squares piece to piece considered
             const selectedRow = squareSelected[0];
             const selectedCol = squareSelected[1];
@@ -331,6 +333,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             const captured = squares[row][col].piece;
             squares[row][col] = {piece: pieceToMove, highlight: "full"};
             squares[selectedRow][selectedCol] = {piece: null, highlight: "full"};
+            setHighlightsToSave([[selectedRow, selectedCol], [row, col]]);
             const castleIfApplicable = () => {
                 let colDiff = selectedCol - col;
                     if (colDiff === 2) {
@@ -380,14 +383,15 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
         // clear highlights and move possibilities: idea that is not working: possibleMoves.forEach(elt => squares[elt[0]][elt[1]].highlight = false"); (instead this will clear every highlight on the board)
         for (let i = 0; i <= 7; i++) {
             for (let j = 0; j <= 7; j++) {
-                squares[i][j].highlight = null;
+                if (!pairInArray([i,j], highlightsToSave)) {
+                    squares[i][j].highlight = null;
+                }
                 if (squares[i][j].piece === "consideration") {
                     squares[i][j].piece = null;
                 }
             }
         }
         if ((whitesTurn && whitePiece(squares[row][col].piece)) || (!whitesTurn && blackPiece(squares[row][col].piece))) {
-            // if castling: makeMove()
             setSquareSelected([row, col]);
             squares[row][col].highlight = "full";
             setPossibleMoves(getPossibleMoves(row, col, true, true));
