@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -7,14 +7,14 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 const blackSquareHighlight = "#edeaa6";
 const whiteSquareHighlight = "#f4f2ca";
 
-const emptyRow = () => {return [{piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}, {piece: null, highlight: false}];};
+const emptyRow = () => {return [{piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}];};
 
 const initBoard = [ // TODO: turn this into a generative function, border default value?
-    [{piece: "BRook", highlight: false}, {piece: "BKnight", highlight: false}, {piece: "BBishop", highlight: false}, {piece: "BQueen", highlight: false}, {piece: "BKing", highlight: false}, {piece: "BBishop", highlight: false}, {piece: "BKnight", highlight: false}, {piece: "BRook", highlight: false}],
-    [{piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}, {piece: "BPawn", highlight: false}],
+    [{piece: "BRook", highlight: null}, {piece: "BKnight", highlight: null}, {piece: "BBishop", highlight: null}, {piece: "BQueen", highlight: null}, {piece: "BKing", highlight: null}, {piece: "BBishop", highlight: null}, {piece: "BKnight", highlight: null}, {piece: "BRook", highlight: null}],
+    [{piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}],
     emptyRow(), emptyRow(), emptyRow(), emptyRow(),
-    [{piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}, {piece: "WPawn", highlight: false}],
-    [{piece: "WRook", highlight: false}, {piece: "WKnight", highlight: false}, {piece: "WBishop", highlight: false}, {piece: "WQueen", highlight: false}, {piece: "WKing", highlight: false}, {piece: "WBishop", highlight: false}, {piece: "WKnight", highlight: false}, {piece: "WRook", highlight: false}],
+    [{piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}, {piece: "WPawn", highlight: null}],
+    [{piece: "WRook", highlight: null}, {piece: "WKnight", highlight: null}, {piece: "WBishop", highlight: null}, {piece: "WQueen", highlight: null}, {piece: "WKing", highlight: null}, {piece: "WBishop", highlight: null}, {piece: "WKnight", highlight: null}, {piece: "WRook", highlight: null}],
 ];
 
 function whitePiece(piece) {
@@ -27,8 +27,8 @@ function blackPiece(piece) {
 
 function Square({ theme, pieceSet, square, whiteSquare, onSquareClick }) {    
     return (
-        <button className="square" onClick={onSquareClick} style={{background: whiteSquare ? (square.highlight ?  whiteSquareHighlight : theme.white) : (square.highlight ? blackSquareHighlight : theme.black)}}>
-            <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}.png`} width="75px" height="75px" onError = {e => e.target.src = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="}/>
+        <button className="square" onClick={onSquareClick} style={{background: square.highlight === "full" ? (whiteSquare ? whiteSquareHighlight : blackSquareHighlight) : (whiteSquare ? theme.white : theme.black), border: square.highlight === "border" ? `5px solid ${whiteSquare ? whiteSquareHighlight : blackSquareHighlight}` : "0px", opacity: (square.piece === "consideration") ? "0.2" : "1"}}>
+            <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${square.piece}.png`} width={square.piece === "consideration" ? "35px" : "75px"} height={square.piece === "consideration" ? "40px" : "75px"} onError={e => e.target.src = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="}/>
         </button>
     );
   }
@@ -49,18 +49,21 @@ function Row({ theme, pieceSet, row, firstSquareIsWhite, onRowClick }) {
 }
 
 function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
-    //const ["WRook", "WKnight", "WBishop", "WQueen", "WKing", "WPawn", "BRook", "BKnight", "BBishop", "BQueen", "BKing", "BPawn"] = pieceSet;
     const [firstClick, setFirstClick] = useState(true);
     const [squareSelected, setSquareSelected] = useState(null);
     const [possibleMoves, setPossibleMoves] = useState([]);
     const [gameOverStatus, setGameOverStatus] = useState(null);
+    const [whiteOOPossible, setWhiteOOPossible] = useState(true);
+    const [blackOOPossible, setBlackOOPossible] = useState(true);
+    const [whiteOOOPossible, setWhiteOOOPossible] = useState(true);
+    const [blackOOOPossible, setBlackOOOPossible] = useState(true);
 
     // Test for checkmate and stalemate on every render (before every move)
-    useEffect( () => {
+    useLayoutEffect(() => {
         // if condition for checkmate satisfied, then check for stalemate
         // TODO: refactor logic now that I'm checking all possible moves at the start of each turn, may as well set them for each piece after checking and reference for the rest of the turn
         
-        // Check to see if opponent has any moves to make (this function is called right before it becomes the opponent's move)
+        // Check to see if player in turn has any moves to make
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if ((whitesTurn && whitePiece(squares[i][j].piece)) || (!whitesTurn && blackPiece(squares[i][j].piece))) {
@@ -87,10 +90,19 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 }
             }
         }
-        setGameOverStatus("Stalemate");
+        setGameOverStatus("Draw: Stalemate");
     });
 
     // TODO: delete firstClick and just check whether squareSelected === null ?
+
+    const pairInArray = (pair, array) => {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i][0] === pair[0] && array[i][1] === pair[1]) {
+                return true;
+            }
+        }
+        return false;
+    };
 
     // Also highlights squares of possible moves if highlight set to true
     // note: if checking king safety, we care about a move possibility for the next move on the board. if not, we are seeing if a piece can capture a king in the immediate next move, regardless of whether it puts their own king in check or not
@@ -189,8 +201,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             // IDEA: check outward in every direction (including knights) for opposing piece
             const testPieceToMove = squares[row][col].piece;
             const testCaptured = squares[rowConsidered][colConsidered].piece;
-            squares[rowConsidered][colConsidered].piece = testPieceToMove;
             squares[row][col].piece = null;
+            squares[rowConsidered][colConsidered].piece = testPieceToMove;
             for (let i = 0; i < 8; i++) {
                 for (let j = 0; j < 8; j++) {
                     if ((whitesTurn && blackPiece(squares[i][j].piece)) || (!whitesTurn && whitePiece(squares[i][j].piece))) {
@@ -225,10 +237,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             case "WPawn":
                 // Regular pawn moves
                 for (let i = 1; pawnHasntMoved ? i <= 2 : i <= 1; i++) {
-                    if ((rowConsidered = row + (i * direction)) >= 0 && rowConsidered <= 7 && squares[rowConsidered][col].piece === null) {
-                        if (!checkingKingSafety || kingIsSafe(rowConsidered, col)) {
-                            list.push([rowConsidered, col]);
-                        }
+                    if ((rowConsidered = row + (i * direction)) >= 0 && rowConsidered <= 7 && squares[rowConsidered][col].piece === null && checkingKingSafety && kingIsSafe(rowConsidered, col)) {
+                        list.push([rowConsidered, col]);
                     } else {
                         break;
                     }
@@ -257,7 +267,25 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                         }
                     }
                 }
-                // TODO: Castling!!
+                // Castling
+                if (!checkingKingSafety) {
+                    break;
+                }
+                let OOOThisMove = whitesTurn ? whiteOOOPossible : blackOOOPossible, OOThisMove = whitesTurn ? whiteOOPossible : blackOOPossible;
+                for (let i = 0; i <= 2; i++) {
+                    if (OOOThisMove && !(pairInArray([row, col - i], list) || ((i === 0 || squares[row][col - i].piece === null) && kingIsSafe(row, col - i)))) {
+                        OOOThisMove = false;
+                    }
+                    if (OOThisMove && !(pairInArray([row, col + i], list) || ((i === 0 || squares[row][col + i].piece === null) && kingIsSafe(row, col + i)))) {
+                        OOThisMove = false;
+                    }
+                }
+                if (OOOThisMove && squares[row][col - 3].piece === null) {
+                    list.push([row, col - 2]);
+                }
+                if (OOThisMove) {
+                    list.push([row, col + 2]);
+                }
                 break;
             case "BKnight":
             case "WKnight":
@@ -287,33 +315,60 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             default:
         }
         if (highlight) {
-            list.forEach(elt => squares[elt[0]][elt[1]].highlight = true);
+            list.forEach(elt => squares[elt[0]][elt[1]].piece ? squares[elt[0]][elt[1]].highlight = "border" : squares[elt[0]][elt[1]].piece = "consideration");
         }
         return list;
     };
     
     const handleClick = (row, col) => {
-
-        const pairInArray = (pair, array) => {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i][0] === pair[0] && array[i][1] === pair[1]) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
         // Move piece in squareSelected to square clicked
         const makeMove = () => {
-            //castling case handled here
             //TODO: record points/pieces captured, add captured pieces as icons on the side
             //remove piece from original square and set other squares piece to piece considered
             const selectedRow = squareSelected[0];
             const selectedCol = squareSelected[1];
             const pieceToMove = squares[selectedRow][selectedCol].piece;
             const captured = squares[row][col].piece;
-            squares[row][col] = {piece: pieceToMove, highlight: true};
-            squares[selectedRow][selectedCol] = {piece: null, highlight: true};
+            squares[row][col] = {piece: pieceToMove, highlight: "full"};
+            squares[selectedRow][selectedCol] = {piece: null, highlight: "full"};
+            const castleIfApplicable = () => {
+                let colDiff = selectedCol - col;
+                    if (colDiff === 2) {
+                        squares[row][3].piece = (whitesTurn ? "WRook" : "BRook");
+                        squares[row][0].piece = null;
+                    } else if (colDiff === -2) {
+                        squares[row][5].piece = (whitesTurn ? "WRook" : "BRook");
+                        squares[row][7].piece = null;
+                    }
+            }
+            //castle if applicable and break castle possibility if applicable
+            switch (pieceToMove) {
+                case "WKing":
+                    castleIfApplicable();
+                    setWhiteOOPossible(false);
+                    setWhiteOOOPossible(false);
+                    break;
+                case "BKing":
+                    castleIfApplicable();
+                    setBlackOOPossible(false);
+                    setBlackOOOPossible(false);
+                    break;
+                case "WRook":
+                    if (selectedRow === 7 && selectedCol === 0) {
+                        setWhiteOOOPossible(false);
+                    } else if (selectedRow === 7 && selectedCol === 7) {
+                        setWhiteOOPossible(false);
+                    }
+                    break;
+                case "BRook":
+                    if (selectedRow === 0 && selectedCol === 0) {
+                        setBlackOOOPossible(false);
+                    } else if (selectedRow === 0 && selectedCol === 7) {
+                        setBlackOOPossible(false);
+                    }
+                    break;
+                default:
+            }
             //set to opponents move
             onPlay(captured);
         };
@@ -322,16 +377,19 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             return;
         }
 
-        // clear highlights: idea that is not working: possibleMoves.forEach(elt => squares[elt[0]][elt[1]].highlight = false"); (instead this will clear every highlight on the board)
+        // clear highlights and move possibilities: idea that is not working: possibleMoves.forEach(elt => squares[elt[0]][elt[1]].highlight = false"); (instead this will clear every highlight on the board)
         for (let i = 0; i <= 7; i++) {
             for (let j = 0; j <= 7; j++) {
-                squares[i][j].highlight = false;
+                squares[i][j].highlight = null;
+                if (squares[i][j].piece === "consideration") {
+                    squares[i][j].piece = null;
+                }
             }
         }
         if ((whitesTurn && whitePiece(squares[row][col].piece)) || (!whitesTurn && blackPiece(squares[row][col].piece))) {
             // if castling: makeMove()
             setSquareSelected([row, col]);
-            squares[row][col].highlight = true;
+            squares[row][col].highlight = "full";
             setPossibleMoves(getPossibleMoves(row, col, true, true));
             setFirstClick(false);
             return;
@@ -371,15 +429,18 @@ export default function Game() {
     const whitesTurn = currentMove % 2 === 0;
     const currentSquares = history[0];
     // Rule of thumb for themes: keep same white, set black, ridge is one tint lighter than black, background is five tints lighter than black
-    const decafTheme = {name: "decaf", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
     const matchaTheme = {name: "matcha", white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
-    const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"}  //"#c09aa5"
+    const taroTheme = {name: "taro", white: "#e0daca", black: "#7a677c", ridge: "#877689", backgroundColor: "#bdb3be"}
+    const mangoTheme = {name: "mango", white: "#e0daca", black: "#e39e31", ridge: "#e6a846", backgroundColor: "#f1cf98"};
+    const vanillaBeanTheme = {name: "vanilla bean", white: "#e0daca", black: "", ridge: "", backgroundColor: ""};
+    const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"};
+    const decafTheme = {name: "decaf", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
     const [theme, setTheme] = useState(decafTheme);
     const [whiteCapturedPieces, setWhiteCapturedPieces] = useState([]);
     const [blackCapturedPieces, setBlackCapturedPieces] = useState([]);
 
     // JS run when page renders and "Game" component mounts: (TODO: set this to a variable listened to for theme)
-    useEffect(() => {document.body.style = `background: ${theme.backgroundColor}`;}, [theme]);
+    useLayoutEffect(() => {document.body.style = `background: ${theme.backgroundColor}`;}, [theme]);
 
     function handlePlay(captured) {
         if (whitePiece(captured)) {
@@ -421,9 +482,12 @@ export default function Game() {
                             <Dropdown.Item onClick={() => setPieceSet("original")} active={pieceSet === "original"}>original</Dropdown.Item>
                         </Dropdown.Menu>
                     </DropdownButton>
-                    <DropdownButton variant="default" className="dropdown-button" title={"theme: " + theme.name}>
+                    <DropdownButton variant="default" className="dropdown-button" title={"flavor: " + theme.name}>
                         <Dropdown.Menu variant="default" style={{background: theme.black}}>
                             <Dropdown.Item onClick={() => setTheme(matchaTheme)} active={theme.name === "matcha"}>matcha</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(taroTheme)} active={theme.name === "taro"}>taro</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(mangoTheme)} active={theme.name === "mango"}>mango</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(vanillaBeanTheme)} active={theme.name === "vanilla bean"}>vanilla bean</Dropdown.Item>
                             <Dropdown.Item onClick={() => setTheme(strawberryMilkTheme)} active={theme.name === "strawberry milk"}>strawberry milk</Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item onClick={() => setTheme(decafTheme)} active={theme.name === "decaf"}>decaf</Dropdown.Item>
