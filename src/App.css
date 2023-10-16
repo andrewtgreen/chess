@@ -1,12 +1,59 @@
-.board-row {
-  display: flex;
+/* TODO:(Maintenance) keep chessboard border and text color the same, dropdown menu and black square color the same*/
+
+* {
+  box-sizing: border-box;
 }
+
+.dropdown-button {
+  color: rgb(167, 128, 105);
+  background-color: 'none';
+  display: inline-block;
+}
+
+/* .super-colors {
+  background: green !important;
+  color: purple !important;
+} */
+
+/* @mixin button-variant {
+  btn-color: purple;
+} */
+
+
+
+/* Create two equal columns that floats next to each other */
+.column1 {
+  float: left;
+  width: 53%;
+  padding: 10px;
+}
+
+.column2 {
+  float: left;
+  width: 47%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+/* .row:after {
+  content: "";
+  display: table;
+  clear: both;
+} */
 
 .board {
   border: 25px ridge rgb(167, 128, 105);
   display: inline-block;
 }
 
+h1, h2, p {
+  color:rgb(138, 106, 87) !important;
+}
+
 h1 {
-  color:rgb(138, 106, 87);
+  text-align: center;
+}
+
+.board-row {
+  display: flex;
 }
