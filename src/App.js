@@ -244,16 +244,20 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                         break;
                     }
                 }
-                // Captures
+                // Captures/en passant
                 for (let i = -1; i <= 1; i += 2) {
                     if ((rowConsidered = row + direction) >= 0 && rowConsidered <= 7 && (colConsidered = col + i) >= 0 && colConsidered <= 7) {
                         let pieceConsidered = squares[rowConsidered][colConsidered].piece;
                         if (pieceConsidered !== null && !sameColorPiece(piece, pieceConsidered) && (checkingKingSafety ? kingIsSafe(rowConsidered, colConsidered) : true)) {
                             list.push([rowConsidered, colConsidered]);
                         }
+                        //En passant: if there's an opposing pawn that just moved it will be at highlightsToSave[1] and the square it came from will be at highlightsToSave[0])
+                         else if (checkingKingSafety && squares[row][colConsidered].piece === (whitesTurn ? "BPawn" : "WPawn") && highlightsToSave.length === 2 && Math.abs(highlightsToSave[1][0] - highlightsToSave[0][0]) === 2) {
+                            list.push([rowConsidered, colConsidered]);
+                        }
+
                     }
                 }
-                // TODO: En Passant
                 break;
             case "BKing":
             case "WKing":
@@ -324,15 +328,20 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     const handleClick = (row, col) => {
         // Move piece in squareSelected to square clicked
         const makeMove = () => {
-            //TODO: record points/pieces captured, add captured pieces as icons on the side
+            // TODO: record points/pieces captured, add captured pieces as icons on the side
             highlightsToSave.forEach(elt => squares[elt[0]][elt[1]].highlight = null);
-            //remove piece from original square and set other squares piece to piece considered
+            // remove piece from original square and set other squares piece to piece considered
             const selectedRow = squareSelected[0];
             const selectedCol = squareSelected[1];
             const pieceToMove = squares[selectedRow][selectedCol].piece;
-            const captured = squares[row][col].piece;
-            squares[row][col] = {piece: pieceToMove, highlight: "full"};
+            let captured = squares[row][col].piece;
+            // en passant check
+            if (pieceToMove === (whitesTurn ? "WPawn" : "BPawn") && selectedCol !== col && squares[row][col].piece === null) {
+                captured = squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece;
+                squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece = null;
+            }
             squares[selectedRow][selectedCol] = {piece: null, highlight: "full"};
+            squares[row][col] = {piece: pieceToMove, highlight: "full"};
             setHighlightsToSave([[selectedRow, selectedCol], [row, col]]);
             const castleIfApplicable = () => {
                 let colDiff = selectedCol - col;
@@ -344,7 +353,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                         squares[row][7].piece = null;
                     }
             }
-            //castle if applicable and break castle possibility if applicable
+            // castle if applicable and break castle possibility if applicable
             switch (pieceToMove) {
                 case "WKing":
                     castleIfApplicable();
@@ -372,7 +381,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                     break;
                 default:
             }
-            //set to opponents move
+            // set to opponents move
             onPlay(captured);
         };
 
