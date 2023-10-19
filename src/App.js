@@ -3,13 +3,14 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import Modal from 'react-bootstrap/Modal';
 
 const blackSquareHighlight = "#edeaa6";
 const whiteSquareHighlight = "#f4f2ca";
 
 const emptyRow = () => {return [{piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}, {piece: null, highlight: null}];};
 
-const initBoard = [ // TODO: turn this into a generative function, border default value?
+const initBoard = [ // TODO: turn this into a generative function, highlight default value?
     [{piece: "BRook", highlight: null}, {piece: "BKnight", highlight: null}, {piece: "BBishop", highlight: null}, {piece: "BQueen", highlight: null}, {piece: "BKing", highlight: null}, {piece: "BBishop", highlight: null}, {piece: "BKnight", highlight: null}, {piece: "BRook", highlight: null}],
     [{piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}, {piece: "BPawn", highlight: null}],
     emptyRow(), emptyRow(), emptyRow(), emptyRow(),
@@ -58,10 +59,13 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     const [blackOOPossible, setBlackOOPossible] = useState(true);
     const [whiteOOOPossible, setWhiteOOOPossible] = useState(true);
     const [blackOOOPossible, setBlackOOOPossible] = useState(true);
+    const [showUpgrade, setShowUpgrade] = useState(false);
+    const [destinationSquare, setDestinationSquare] = useState(null);
+    // TODO: solution for why it doesn't work without this separate variable (can't just use squareSelected)
+    const [upgradeSquareSelected, setUpgradeSquareSelected] = useState(null);
 
-    // Test for checkmate and stalemate on every render (before every move)
+    // Test for checkmate and stalemate on every render (before every move): if condition for checkmate satisfied, then check for stalemate
     useLayoutEffect(() => {
-        // if condition for checkmate satisfied, then check for stalemate
         // TODO: refactor logic now that I'm checking all possible moves at the start of each turn, may as well set them for each piece after checking and reference for the rest of the turn
         
         // Check to see if player in turn has any moves to make
@@ -70,7 +74,6 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 if ((whitesTurn && whitePiece(squares[i][j].piece)) || (!whitesTurn && blackPiece(squares[i][j].piece))) {
                     // IMPORTANT Make separate parameter for highlight as third parameter should be true
                     if (getPossibleMoves(i, j, true, false).length > 0) {
-                        //console.log(`${i}, ${j}, ${getPossibleMoves(i, j, true)}`);
                         return;
                     }
                 }
@@ -84,7 +87,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                     let possibleMoves = getPossibleMoves(i, j, true, false);
                     for (let k = 0; k < possibleMoves.length; k++) {
                         if (squares[possibleMoves[k][0]][possibleMoves[k][1]].piece === (whitesTurn ? "WKing" : "BKing")) {
-                            setGameOverStatus(whitesTurn ? "Black Wins!" : "White Wins!");
+                            setGameOverStatus(whitesTurn ? "BLACK WINS!" : "WHITE WINS!");
                             return;
                         }
                     }
@@ -95,6 +98,85 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     });
 
     // TODO: delete firstClick and just check whether squareSelected === null ?
+
+    // Move piece fromSquare toSquare
+    const makeMove = (fromSquare, toSquare, pieceToMove) => {
+        // TODO: record points/pieces captured, list scores next to pieces on side of board
+        // remove piece from original square and set other squares piece to piece considered
+        const fromRow = fromSquare[0];
+        const fromCol = fromSquare[1];
+        const toRow = toSquare[0];
+        const toCol = toSquare[1];
+        let captured = squares[toRow][toCol].piece;
+
+        const castleIfApplicable = () => {
+            let colDiff = fromCol - toCol;
+                if (colDiff === 2) {
+                    squares[toRow][3].piece = (whitesTurn ? "WRook" : "BRook");
+                    squares[toRow][0].piece = null;
+                } else if (colDiff === -2) {
+                    squares[toRow][5].piece = (whitesTurn ? "WRook" : "BRook");
+                    squares[toRow][7].piece = null;
+                }
+        }
+
+        switch(pieceToMove) {
+            case "WPawn":
+            case "BPawn":
+                // upgrade pawn check
+                if (toRow === (whitesTurn ? 0 : 7)) {
+                    // store destination square
+                    setDestinationSquare([toRow, toCol]);          
+                    setShowUpgrade(true);
+                    setSquareSelected([fromRow, fromCol]);
+                    setUpgradeSquareSelected([fromRow, fromCol]);
+                    return;
+                } // en passant check
+                    else if (fromCol !== toCol && squares[toRow][toCol].piece === null) {
+                    captured = squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece;
+                    squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece = null;
+                }
+                break;
+            // castle/break castle possibility if applicable
+            case "WKing":
+                castleIfApplicable();
+                setWhiteOOPossible(false);
+                setWhiteOOOPossible(false);
+                break;
+            case "BKing":
+                castleIfApplicable();
+                setBlackOOPossible(false);
+                setBlackOOOPossible(false);
+                break;
+            case "WRook":
+                if (fromRow === 7 && fromCol === 0) {
+                    setWhiteOOOPossible(false);
+                } else if (fromRow === 7 && fromCol === 7) {
+                    setWhiteOOPossible(false);
+                }
+                break;
+            case "BRook":
+                if (fromRow === 0 && fromCol === 0) {
+                    setBlackOOOPossible(false);
+                } else if (fromRow === 0 && fromCol === 7) {
+                    setBlackOOPossible(false);
+                }
+                break;
+            default:
+        } 
+        // clear highlights from previous move now that move is definitively being made
+        highlightsToSave.forEach(elt => squares[elt[0]][elt[1]].highlight = null);
+        // set highlights for this move
+        squares[fromRow][fromCol] = {piece: null, highlight: "full"};
+        squares[toRow][toCol] = {piece: pieceToMove, highlight: "full"};
+        setHighlightsToSave([[fromRow, fromCol], [toRow, toCol]]);
+        // cleanup for pawn upgrade calling this function
+        setShowUpgrade(false);
+        setDestinationSquare(null);
+        setUpgradeSquareSelected(null);
+        // set to opponents move and record captured piece (if any)
+        onPlay(captured);
+    }; 
 
     const pairInArray = (pair, array) => {
         for (let i = 0; i < array.length; i++) {
@@ -246,16 +328,20 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 }
                 // Captures/en passant
                 for (let i = -1; i <= 1; i += 2) {
+                    // Captures
                     if ((rowConsidered = row + direction) >= 0 && rowConsidered <= 7 && (colConsidered = col + i) >= 0 && colConsidered <= 7) {
                         let pieceConsidered = squares[rowConsidered][colConsidered].piece;
                         if (pieceConsidered !== null && !sameColorPiece(piece, pieceConsidered) && (checkingKingSafety ? kingIsSafe(rowConsidered, colConsidered) : true)) {
                             list.push([rowConsidered, colConsidered]);
                         }
-                        //En passant: if there's an opposing pawn that just moved it will be at highlightsToSave[1] and the square it came from will be at highlightsToSave[0])
-                         else if (checkingKingSafety && squares[row][colConsidered].piece === (whitesTurn ? "BPawn" : "WPawn") && highlightsToSave.length === 2 && Math.abs(highlightsToSave[1][0] - highlightsToSave[0][0]) === 2) {
+                        // En passant: if there's an opposing pawn that just moved it will be at highlightsToSave[1] and the square it came from will be at highlightsToSave[0])
+                         else if (checkingKingSafety && highlightsToSave.length === 2 // (piece just moved, will be true after first move of game)
+                            && (highlightsToSave[1][0] + highlightsToSave[0][0])/2 === rowConsidered // (row in between highlighted squares from last move, or old and new square for last piece that moved, is rowConsidered)
+                            && highlightsToSave[1][1] === colConsidered // (colConsidered is the same column as new square for last piece that moved)
+                            && squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece === (whitesTurn ? "BPawn" : "WPawn") // (piece that just moved is a pawn)
+                            && Math.abs(highlightsToSave[1][0] - highlightsToSave[0][0]) === 2) { // (said pawn moved two squares)
                             list.push([rowConsidered, colConsidered]);
                         }
-
                     }
                 }
                 break;
@@ -326,64 +412,6 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     };
     
     const handleClick = (row, col) => {
-        // Move piece in squareSelected to square clicked
-        const makeMove = () => {
-            // TODO: record points/pieces captured, add captured pieces as icons on the side
-            highlightsToSave.forEach(elt => squares[elt[0]][elt[1]].highlight = null);
-            // remove piece from original square and set other squares piece to piece considered
-            const selectedRow = squareSelected[0];
-            const selectedCol = squareSelected[1];
-            const pieceToMove = squares[selectedRow][selectedCol].piece;
-            let captured = squares[row][col].piece;
-            // en passant check
-            if (pieceToMove === (whitesTurn ? "WPawn" : "BPawn") && selectedCol !== col && squares[row][col].piece === null) {
-                captured = squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece;
-                squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece = null;
-            }
-            squares[selectedRow][selectedCol] = {piece: null, highlight: "full"};
-            squares[row][col] = {piece: pieceToMove, highlight: "full"};
-            setHighlightsToSave([[selectedRow, selectedCol], [row, col]]);
-            const castleIfApplicable = () => {
-                let colDiff = selectedCol - col;
-                    if (colDiff === 2) {
-                        squares[row][3].piece = (whitesTurn ? "WRook" : "BRook");
-                        squares[row][0].piece = null;
-                    } else if (colDiff === -2) {
-                        squares[row][5].piece = (whitesTurn ? "WRook" : "BRook");
-                        squares[row][7].piece = null;
-                    }
-            }
-            // castle if applicable and break castle possibility if applicable
-            switch (pieceToMove) {
-                case "WKing":
-                    castleIfApplicable();
-                    setWhiteOOPossible(false);
-                    setWhiteOOOPossible(false);
-                    break;
-                case "BKing":
-                    castleIfApplicable();
-                    setBlackOOPossible(false);
-                    setBlackOOOPossible(false);
-                    break;
-                case "WRook":
-                    if (selectedRow === 7 && selectedCol === 0) {
-                        setWhiteOOOPossible(false);
-                    } else if (selectedRow === 7 && selectedCol === 7) {
-                        setWhiteOOPossible(false);
-                    }
-                    break;
-                case "BRook":
-                    if (selectedRow === 0 && selectedCol === 0) {
-                        setBlackOOOPossible(false);
-                    } else if (selectedRow === 0 && selectedCol === 7) {
-                        setBlackOOPossible(false);
-                    }
-                    break;
-                default:
-            }
-            // set to opponents move
-            onPlay(captured);
-        };
 
         if (gameOverStatus) {
             return;
@@ -392,7 +420,9 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
         // clear highlights and move possibilities: idea that is not working: possibleMoves.forEach(elt => squares[elt[0]][elt[1]].highlight = false"); (instead this will clear every highlight on the board)
         for (let i = 0; i <= 7; i++) {
             for (let j = 0; j <= 7; j++) {
-                if (!pairInArray([i,j], highlightsToSave)) {
+                if (pairInArray([i,j], highlightsToSave)) {
+                    squares[i][j].highlight = "full";
+                } else {
                     squares[i][j].highlight = null;
                 }
                 if (squares[i][j].piece === "consideration") {
@@ -411,7 +441,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             return;
         }
         if (pairInArray([row, col], possibleMoves)) {
-            makeMove();
+            makeMove(squareSelected, [row, col], squares[squareSelected[0]][squareSelected[1]].piece);
         }
         setSquareSelected(null);
         setPossibleMoves([]);
@@ -431,6 +461,25 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             <Row theme={theme} pieceSet={pieceSet} row={squares[7]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(7, col)} />
         </div>
         <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "white's turn" : "black's turn")}</h1>
+        <Modal show={showUpgrade} onHide={() => setShowUpgrade(false)}>
+            <Modal.Header closeButton style={{color: theme.black, background: theme.backgroundColor}}>
+                <Modal.Title>Select a piece</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{background: theme.backgroundColor}}>
+                <button className="square" style={{background: theme.black}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WQueen" : "BQueen")}>
+                    <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WQueen" : "BQueen"}.png`} width="75px" height="75px"/>
+                </button>
+                <button className="square" style={{background: theme.white}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WRook" : "BRook")}>
+                    <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WRook" : "BRook"}.png`} width="75px" height="75px"/>
+                </button>
+                <button className="square" style={{background: theme.black}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WBishop" : "BBishop")}>
+                    <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WBishop" : "BBishop"}.png`} width="75px" height="75px"/>
+                </button>
+                <button className="square" style={{background: theme.white}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WKnight" : "BKnight")}>
+                    <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WKnight" : "BKnight"}.png`} width="75px" height="75px"/>
+                </button>
+            </Modal.Body>
+        </Modal>
       </>
     );
 } 
@@ -444,11 +493,12 @@ export default function Game() {
     // Rule of thumb for themes: keep same white, set black, ridge is one tint lighter than black, background is five tints lighter than black
     const matchaTheme = {name: "matcha", white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
     const taroTheme = {name: "taro", white: "#e0daca", black: "#7a677c", ridge: "#877689", backgroundColor: "#bdb3be"}
-    const mangoTheme = {name: "mango", white: "#e0daca", black: "#e39e31", ridge: "#e6a846", backgroundColor: "#f1cf98"};
+    const mangoTheme = {name: "mango", white: "#e0daca", black: "#d69f47", ridge: "#daa959", backgroundColor: "#ebcfa3"};
     const vanillaBeanTheme = {name: "vanilla bean", white: "#e0daca", black: "", ridge: "", backgroundColor: ""};
     const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"};
-    const decafTheme = {name: "decaf", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
-    const [theme, setTheme] = useState(decafTheme);
+    const lavenderMilkTheme = {name: "lavender milk", white: "#e0daca", black: "#8c92ac", ridge: "#989db4", backgroundColor: "#c6c9d6"};
+    const javaChipTheme = {name: "java chip", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
+    const [theme, setTheme] = useState(javaChipTheme);
     const [whiteCapturedPieces, setWhiteCapturedPieces] = useState([]);
     const [blackCapturedPieces, setBlackCapturedPieces] = useState([]);
 
@@ -502,8 +552,9 @@ export default function Game() {
                             <Dropdown.Item onClick={() => setTheme(mangoTheme)} active={theme.name === "mango"}>mango</Dropdown.Item>
                             <Dropdown.Item onClick={() => setTheme(vanillaBeanTheme)} active={theme.name === "vanilla bean"}>vanilla bean</Dropdown.Item>
                             <Dropdown.Item onClick={() => setTheme(strawberryMilkTheme)} active={theme.name === "strawberry milk"}>strawberry milk</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(lavenderMilkTheme)} active={theme.name === "lavender milk"}>lavender milk</Dropdown.Item>
                             <Dropdown.Divider />
-                            <Dropdown.Item onClick={() => setTheme(decafTheme)} active={theme.name === "decaf"}>decaf</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTheme(javaChipTheme)} active={theme.name === "javaChipTheme"}>java chip</Dropdown.Item>
                         </Dropdown.Menu>
                     </DropdownButton>
                 </div>
