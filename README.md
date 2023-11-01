@@ -1,4 +1,4 @@
 # Welcome to my chess app
-This project is me migrating (and completing) an 85% complete Chess GUI project in Java that I made a little while ago to Javascript/React for a more friendly and accesible interface. All of the code is my original work, no tutorials followed (general inspiration taken from the React TicTacToe Tutorial).
+This project is me building a Chess Game in React. No tutorials have been followed for the chess logic or components, inspiration for the user accounts and connectivity across devices taken from [PedroTech](https://www.youtube.com/@PedroTechnologies).
 The end goal is to have a website with a two-player chess interface (currently just being able to have two players play each other on one device).
-All pieces designed and digitally created by Jenny Wang.
+All pieces designed and digitally created by Ms. Jenny Wang.
