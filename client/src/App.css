@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Alegreya+Sans+SC');
+@import url('https://fonts.googleapis.com/css?family=Fredoka');
 /* TODO:(Maintenance) keep chessboard border and text color the same, dropdown menu and black square color the same*/
 
 * {
@@ -6,16 +6,11 @@
 }
 
 body {
-  font-family: "Alegreya Sans SC", serif !important;
+  font-family: "Fredoka", serif !important;
 }
 
 img {
   transition: all .2s;
-}
-
-.dropdown-button {
-  background-color: 'none';
-  display: inline-block;
 }
 
 /* Create two equal columns that floats next to each other */
@@ -44,7 +39,7 @@ h1 {
 }
 
 .square {
-  width: 90px;
-  height: 90px;
+  width: 5.5rem;
+  height: 5.5rem;
   border: 0px;
 }

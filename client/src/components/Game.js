@@ -14,23 +14,13 @@ const initBoard = [ // TODO: turn this into a generative function, highlight def
     [{piece: "WRook", highlight: null}, {piece: "WKnight", highlight: null}, {piece: "WBishop", highlight: null}, {piece: "WQueen", highlight: null}, {piece: "WKing", highlight: null}, {piece: "WBishop", highlight: null}, {piece: "WKnight", highlight: null}, {piece: "WRook", highlight: null}],
 ];
 
-function Game() {
-    const [pieceSet, setPieceSet] = useState("original");
+function Game({ theme, pieceSet }) {
     const [history, setHistory] = useState([initBoard]); // TODO: add history
     const [currentMove, setCurrentMove] = useState(0);
     const whitesTurn = currentMove % 2 === 0;
     const currentSquares = history[0];
     const [whiteCapturedPieces, setWhiteCapturedPieces] = useState([]);
     const [blackCapturedPieces, setBlackCapturedPieces] = useState([]);
-    // Rule of thumb for themes: keep same white, set black, ridge is one tint lighter than black, background is five tints lighter than black
-    const matchaTheme = {name: "matcha", white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
-    const taroTheme = {name: "taro", white: "#e0daca", black: "#7a677c", ridge: "#877689", backgroundColor: "#bdb3be"}
-    const mangoTheme = {name: "mango", white: "#e0daca", black: "#d69f47", ridge: "#daa959", backgroundColor: "#ebcfa3"};
-    const vanillaBeanTheme = {name: "vanilla bean", white: "#e0daca", black: "", ridge: "", backgroundColor: ""};
-    const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"};
-    const lavenderMilkTheme = {name: "lavender milk", white: "#e0daca", black: "#8c92ac", ridge: "#989db4", backgroundColor: "#c6c9d6"};
-    const javaChipTheme = {name: "java chip", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
-    const [theme, setTheme] = useState(javaChipTheme);
  
     // JS run when page renders and "Game" component mounts: (TODO: set this to a variable listened to for theme)
     useLayoutEffect(() => {document.body.style = `background: ${theme.backgroundColor}`;}, [theme]);
@@ -68,14 +58,14 @@ function Game() {
                         </Dropdown.Menu>
                     </Dropdown> */}
 
-                    <DropdownButton variant="default" className="dropdown-button" title={"pieces: " + pieceSet}>
+                    {/* <DropdownButton variant="default" className="dropdown-button" title={"pieces: " + pieceSet}>
                         <Dropdown.Menu variant="default" style={{background: theme.black}} className="super-colors">
                             <Dropdown.Item onClick={() => setPieceSet("evil princess")} active={pieceSet === "evil princess"}>evil princess</Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item onClick={() => setPieceSet("original")} active={pieceSet === "original"}>original</Dropdown.Item>
                         </Dropdown.Menu>
-                    </DropdownButton>
-                    <DropdownButton variant="default" className="dropdown-button" title={"flavor: " + theme.name}>
+                    </DropdownButton> */}
+                    {/* <DropdownButton variant="default" className="dropdown-button" title={"flavor: " + theme.name}>
                         <Dropdown.Menu variant="default" style={{background: theme.black}}>
                             <Dropdown.Item onClick={() => setTheme(matchaTheme)} active={theme.name === "matcha"}>matcha</Dropdown.Item>
                             <Dropdown.Item onClick={() => setTheme(taroTheme)} active={theme.name === "taro"}>taro</Dropdown.Item>
@@ -86,7 +76,7 @@ function Game() {
                             <Dropdown.Divider />
                             <Dropdown.Item onClick={() => setTheme(javaChipTheme)} active={theme.name === "javaChipTheme"}>java chip</Dropdown.Item>
                         </Dropdown.Menu>
-                    </DropdownButton>
+                    </DropdownButton> */}
                 </div>
             </div>
         </div>

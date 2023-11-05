@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import './App.css';
+import NavBar from './components/NavBar';
+import { javaChipTheme } from './components/NavBar.js';
 import Game from './components/Game';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
@@ -7,11 +9,12 @@ import { StreamChat } from "stream-chat";
 import Cookies from 'universal-cookie';
 
 function App() {
-    const api_key = process.env.REACT_APP_STREAM_API_KEY;
     const cookies = new Cookies();
     const token = cookies.get("token");
-    const client = StreamChat.getInstance(api_key);
+    const client = StreamChat.getInstance(process.env.REACT_APP_STREAM_API_KEY);
     const [isAuth, setIsAuth] = useState(false);
+    const [theme, setTheme] = useState(javaChipTheme);
+    const [pieceSet, setPieceSet] = useState("original");
 
     if (token) {
         client.connectUser({
@@ -27,7 +30,8 @@ function App() {
 
     return (
         <div className="App">
-            <Game />
+            <NavBar theme={theme} setTheme={setTheme} game="chess" pieceSet={pieceSet} setPieceSet={setPieceSet} />
+            <Game theme={theme} pieceSet={pieceSet} />
             {isAuth ? 
                 <button onClick={() => {
                     cookies.remove("token");
