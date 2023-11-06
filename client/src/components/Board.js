@@ -422,11 +422,8 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             <Row theme={theme} pieceSet={pieceSet} row={squares[7]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(7, col)} />
         </div>
         <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "white's turn" : "black's turn")}</h1>
-        <Modal show={showUpgrade} onHide={() => setShowUpgrade(false)}>
-            <Modal.Header closeButton style={{color: theme.black, background: theme.backgroundColor}}>
-                <Modal.Title>Select a piece</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{background: theme.backgroundColor}}>
+        <Modal size="md" show={showUpgrade} onHide={() => setShowUpgrade(false)}>
+            <Modal.Header closeButton style={{background: theme.backgroundColor}}>
                 <button className="square" style={{background: theme.black}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WQueen" : "BQueen")}>
                     <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WQueen" : "BQueen"}.png`} width="75px" height="75px"/>
                 </button>
@@ -439,7 +436,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 <button className="square" style={{background: theme.white}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WKnight" : "BKnight")}>
                     <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WKnight" : "BKnight"}.png`} width="75px" height="75px"/>
                 </button>
-            </Modal.Body>
+            </Modal.Header>
         </Modal>
       </>
     );

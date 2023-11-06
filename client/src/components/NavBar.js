@@ -1,68 +1,52 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Offcanvas from 'react-bootstrap/Offcanvas';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
+import { Button, Offcanvas, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import Cookies from 'universal-cookie';
 // Rule of thumb for themes: keep same white, set black, ridge is one tint lighter than black, background is five tints lighter than black
-export const javaChipTheme = {white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
-const matchaTheme = {white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
-const taroTheme = {white: "#e0daca", black: "#7a677c", ridge: "#877689", backgroundColor: "#bdb3be"}
-const mangoTheme = {white: "#e0daca", black: "#d69f47", ridge: "#daa959", backgroundColor: "#ebcfa3"};
-const vanillaBeanTheme = {white: "#e0daca", black: "", ridge: "", backgroundColor: ""};
-const strawberryMilkTheme = {white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"};
-const lavenderMilkTheme = {white: "#e0daca", black: "#8c92ac", ridge: "#989db4", backgroundColor: "#c6c9d6"};
+export const javaChipTheme = {name: "java chip", white: "#e0daca", black: "#8a6a57", ridge: "#967968", backgroundColor: "#c5b5ab"};
+const matchaTheme = {name: "matcha", white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
+const taroTheme = {name: "taro", white: "#e0daca", black: "#7a677c", ridge: "#877689", backgroundColor: "#bdb3be"}
+const mangoTheme = {name: "mango", white: "#e0daca", black: "#d69f47", ridge: "#daa959", backgroundColor: "#ebcfa3"};
+const vanillaBeanTheme = {name: "vanilla bean", white: "#e0daca", black: "", ridge: "", backgroundColor: ""};
+const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"};
+const lavenderMilkTheme = {name: "lavender milk", white: "#e0daca", black: "#8c92ac", ridge: "#989db4", backgroundColor: "#c6c9d6"};
 
-function NavBar({ theme, setTheme, game, pieceSet, setPieceSet }) {
-    const [show, setShow] = useState(false);
-    
+function NavBar({ theme, setTheme, game, pieceSet, setPieceSet, logout }) {
+    const [showSettings, setShowSettings] = useState(false);
+    const textButtonStyle = {background: theme.white, color: theme.black, border: "none"};
+    const clearButtonStyle = {background: "none", border: "none"};
+    const cookies = new Cookies();
+
     return (
         <>
-            <Navbar expand="lg" style={{background: theme.black}}>
+            <Navbar expand="lg" style={{background: theme.black, height: "3.3rem"}}>
                 <Container fluid>
-                    <Button style={{background: "none", border: "none"}} onClick={() => setShow(true)}><img src={`${process.env.PUBLIC_URL}/settingsIcon.png`} style={{width: "1.5em"}}/></Button>
-                    <Navbar.Toggle aria-controls="navbarScroll" />
+                    <Button style={clearButtonStyle} onClick={console.log("hey")}><img style={{display: "block", marginLeft: "auto", marginRight: "auto", width: "40%"}} src={`${process.env.PUBLIC_URL}/${game}Logo.png`}/></Button>
+                    <Navbar.Brand href="#" style={{color: theme.white}}>BobaShop</Navbar.Brand>
+                    <Navbar.Toggle aria-controls="navbarScroll" style={{color: theme.white}} />
                     <Navbar.Collapse id="navbarScroll">
-                        <Nav
-                        className="me-auto my-2 my-lg-0"
-                        style={{ maxHeight: '100px' }}
-                        navbarScroll
-                        >
-                        <NavDropdown title="Link" id="navbarScrollingNavDropdown">
-                            <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
-                            <NavDropdown.Item href="#action4">
-                            Another action
-                            </NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item href="#action5">
-                            Something else here
-                            </NavDropdown.Item>
-                        </NavDropdown>
-                        <Nav.Link href="#" disabled>
-                            Link
-                        </Nav.Link>
+                        <Nav className="me-auto my-2 my-lg-0" navbarScroll>
+                            <Button style={clearButtonStyle} onClick={() => setShowSettings(true)}><img src={`${process.env.PUBLIC_URL}/settingsIcon.png`} style={{width: "1.5em"}}/></Button>
                         </Nav>
-                        <Form className="d-flex">
-                        <Form.Control
-                            type="search"
-                            placeholder="Search"
-                            className="me-2"
-                            aria-label="Search"
-                        />
-                        <Button variant="outline-success">Search</Button>
-                        </Form>
+                        <Navbar.Text style={{color: theme.backgroundColor}}>
+                            Signed in as: <a style={{color: theme.white, textDecoration: "none"}} href="#">{cookies.get("firstName")} {cookies.get("lastName")}</a>
+                        </Navbar.Text>
+                        &nbsp;&nbsp;
+                        <Button
+                          style={textButtonStyle}
+                          onClick={logout}
+                        >
+                            Log out
+                        </Button>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <Offcanvas show={show} onHide={() => setShow(false)} style={{background: theme.backgroundColor, color: theme.black}}>
+            <Offcanvas show={showSettings} onHide={() => setShowSettings(false)} style={{background: theme.backgroundColor, color: theme.black}}>
                 <Offcanvas.Header closeButton>
                 <Offcanvas.Title>Settings</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <NavDropdown title={"flavor: " + theme.name}>
-                        <NavDropdown.Item onClick={() => setTheme(matchaTheme)} active={theme.name === "matcha"}>matcha</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(matchaTheme)} active={theme === matchaTheme}>matcha</NavDropdown.Item>
                         <NavDropdown.Item onClick={() => setTheme(taroTheme)} active={theme === taroTheme}>taro</NavDropdown.Item>
                         <NavDropdown.Item onClick={() => setTheme(mangoTheme)} active={theme === mangoTheme}>mango</NavDropdown.Item>
                         <NavDropdown.Item onClick={() => setTheme(vanillaBeanTheme)} active={theme === vanillaBeanTheme}>vanilla bean</NavDropdown.Item>

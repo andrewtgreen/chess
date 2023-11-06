@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import Axios from 'axios';
 import Cookies from 'universal-cookie';
+import { Form, Button } from "react-bootstrap";
 
-function Login({ setIsAuth }) {
+function Login({ setIsAuth, theme }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const cookies = new Cookies();
@@ -27,19 +28,31 @@ function Login({ setIsAuth }) {
     }
 
     return (
-        <div className="login">
-            <label>Login</label>
-            <input 
-              placeholder="Username" 
-              onChange={(event) => setUsername(event.target.value)}
-            />
-            <input 
-              placeholder="Password"
-              type="password"
-              onChange={(event) => setPassword(event.target.value)}
-            />
-            <button onClick={login}>Login</button>
-        </div>
+        <>
+            <h4>Log In</h4>
+            <Form onSubmit={login}>
+                <Form.Group className="mb-3">
+                    <Form.Control 
+                        placeholder="Username"
+                        onChange={(event) => setUsername(event.target.value)}
+                        autoFocus
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Control 
+                        type="password"
+                        placeholder="Password"
+                        onChange={(event) => setPassword(event.target.value)}
+                    />
+                </Form.Group>
+                <Button 
+                    type="submit"
+                    style={{background: theme.black, border: "none", color: theme.white}}
+                >
+                    Submit
+                </Button>
+            </Form>
+        </>
     )
 }
 
