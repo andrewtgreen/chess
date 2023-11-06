@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Fredoka');
-/* TODO:(Maintenance) keep chessboard border and text color the same, dropdown menu and black square color the same*/
 
 * {
   box-sizing: border-box;
@@ -36,6 +35,12 @@ h1 {
 
 .board-row {
   display: flex;
+}
+
+.login {
+  margin: 5px;
+  display: flex;
+  justify-content: center;
 }
 
 .square {
