@@ -6,7 +6,9 @@ import { javaChipTheme } from './components/NavBar.js';
 import { Modal } from 'react-bootstrap';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import JoinGame from './components/JoinGame';
 import { StreamChat } from "stream-chat";
+import { Chat } from "stream-chat-react"
 import Cookies from 'universal-cookie';
 
 function App() {
@@ -28,9 +30,7 @@ function App() {
         setIsAuth(false);
     };
 
-    useEffect(() => {
-        document.body.style = `background: ${theme.backgroundColor}`;
-    }, [theme]);
+    useEffect(() => {document.body.style = `background: ${theme.backgroundColor}`;}, [theme]);
 
     useEffect(() => {
         if (token) {
@@ -52,6 +52,7 @@ function App() {
             <Chat client={client}>
                 <JoinGame theme={theme} pieceSet={pieceSet} />
             </Chat>
+            {/* <ChessGame theme={theme} pieceSet={pieceSet} /> */}
             <Modal
                 show={!isAuth}
                 backdrop="static"
