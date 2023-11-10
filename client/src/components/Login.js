@@ -8,14 +8,11 @@ function Login({ setIsAuth, theme }) {
     const [password, setPassword] = useState("");
     const cookies = new Cookies();
 
-    const login = () => {
+    const login = (e) => {
+        e.preventDefault();
         Axios.post("http://localhost:3001/login", { username, password }).then(res => {
-            if (res.data.failedLogin) {
-                alert("Password is incorrect");
-                return;
-            } else if (res.data.failedUsername) {
-                alert("Username does not exist");
-                return;
+            if (res.data.badResponse) {
+                return alert(res.data.badResponse);
             }
             const { firstName, lastName, username, token, userID } = res.data;
             cookies.set("token", token);

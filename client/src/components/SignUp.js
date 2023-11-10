@@ -8,12 +8,16 @@ function SignUp({ setIsAuth, theme }) {
     const [passwordConfirm, setPasswordConfirm] = useState(null);
     const cookies = new Cookies();
 
-    const signUp = () => {
+    const signUp = (e) => {
+        e.preventDefault();
         if (user.password !== passwordConfirm) {
             alert("Passwords do not match");
             return;
         }
         Axios.post("http://localhost:3001/signup", user).then(res => {
+            if (res.data.badResponse) {
+              return alert(res.data.badResponse);
+            }
             const { token, userID, firstName, lastName, username, hashedPassword } = res.data;
             cookies.set("token", token);
             cookies.set("userID", userID);

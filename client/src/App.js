@@ -3,7 +3,6 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from './components/NavBar';
 import { javaChipTheme } from './components/NavBar.js';
-import Game from './components/Game';
 import { Modal } from 'react-bootstrap';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
@@ -30,6 +29,10 @@ function App() {
     };
 
     useEffect(() => {
+        document.body.style = `background: ${theme.backgroundColor}`;
+    }, [theme]);
+
+    useEffect(() => {
         if (token) {
             client.connectUser({
                 id: cookies.get("userID"),
@@ -46,7 +49,9 @@ function App() {
     return (
         <div className="App">
             <NavBar theme={theme} setTheme={setTheme} game="chess" pieceSet={pieceSet} setPieceSet={setPieceSet} logout={logout} />
-            <Game theme={theme} pieceSet={pieceSet} />
+            <Chat client={client}>
+                <JoinGame theme={theme} pieceSet={pieceSet} />
+            </Chat>
             <Modal
                 show={!isAuth}
                 backdrop="static"

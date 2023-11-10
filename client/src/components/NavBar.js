@@ -18,9 +18,9 @@ function NavBar({ theme, setTheme, game, pieceSet, setPieceSet, logout }) {
 
     return (
         <>
-            <Navbar expand="lg" style={{background: theme.black, height: "3.3rem"}}>
+            <Navbar expand="lg" style={{background: theme.black}}>
                 <Container fluid>
-                    <Button style={clearButtonStyle} onClick={console.log("hey")}><img style={{display: "block", marginLeft: "auto", marginRight: "auto", width: "40%"}} src={`${process.env.PUBLIC_URL}/${game}Logo.png`}/></Button>
+                    <Button style={clearButtonStyle}><img style={{display: "block", marginLeft: "auto", marginRight: "auto", width: "40%"}} src={`${process.env.PUBLIC_URL}/${game}Logo.png`}/></Button>
                     <Navbar.Brand href="#" style={{color: theme.white}}>BobaShop</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" style={{color: theme.white}} />
                     <Navbar.Collapse id="navbarScroll">
