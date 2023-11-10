@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Row from './Row';
+import { useChatContext, useChannelStateContext } from "stream-chat-react";
 
 function whitePiece(piece) {
     return piece === "WRook" || piece === "WKnight" || piece === "WBishop" || piece === "WQueen" || piece === "WKing" || piece === "WPawn";
@@ -10,7 +11,7 @@ function blackPiece(piece) {
     return piece === "BRook" || piece === "BKnight" || piece === "BBishop" || piece === "BQueen" || piece === "BKing" || piece === "BPawn";
 }
 
-function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
+function Board({ theme, pieceSet, whitesTurn, squares, handlePlay/*, highlightsToSave, setHighlightsToSave*/ }) {
     const [firstClick, setFirstClick] = useState(true);
     const [squareSelected, setSquareSelected] = useState(null);
     const [possibleMoves, setPossibleMoves] = useState([]);
@@ -24,6 +25,9 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     const [destinationSquare, setDestinationSquare] = useState(null);
     // TODO: solution for why it doesn't work without this separate variable (can't just use squareSelected)
     const [upgradeSquareSelected, setUpgradeSquareSelected] = useState(null);
+    
+    const { channel } = useChannelStateContext();
+    const { client } = useChatContext();
 
     // Test for checkmate and stalemate on every render (before every move): if condition for checkmate satisfied, then check for stalemate
     useLayoutEffect(() => {
@@ -61,23 +65,24 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
     // TODO: delete firstClick and just check whether squareSelected === null ?
 
     // Move piece fromSquare toSquare
-    const makeMove = (fromSquare, toSquare, pieceToMove) => {
+    const makeMove = async (fromSquare, toSquare, pieceToMove) => {
         // TODO: record points/pieces captured, list scores next to pieces on side of board
         // remove piece from original square and set other squares piece to piece considered
+        const nextSquares = squares.slice();
         const fromRow = fromSquare[0];
         const fromCol = fromSquare[1];
         const toRow = toSquare[0];
         const toCol = toSquare[1];
-        let captured = squares[toRow][toCol].piece;
+        let captured = nextSquares[toRow][toCol].piece;
 
         const castleIfApplicable = () => {
             let colDiff = fromCol - toCol;
                 if (colDiff === 2) {
-                    squares[toRow][3].piece = (whitesTurn ? "WRook" : "BRook");
-                    squares[toRow][0].piece = null;
+                    nextSquares[toRow][3].piece = (whitesTurn ? "WRook" : "BRook");
+                    nextSquares[toRow][0].piece = null;
                 } else if (colDiff === -2) {
-                    squares[toRow][5].piece = (whitesTurn ? "WRook" : "BRook");
-                    squares[toRow][7].piece = null;
+                    nextSquares[toRow][5].piece = (whitesTurn ? "WRook" : "BRook");
+                    nextSquares[toRow][7].piece = null;
                 }
         }
 
@@ -93,9 +98,9 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                     setUpgradeSquareSelected([fromRow, fromCol]);
                     return;
                 } // en passant check
-                    else if (fromCol !== toCol && squares[toRow][toCol].piece === null) {
-                    captured = squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece;
-                    squares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece = null;
+                    else if (fromCol !== toCol && nextSquares[toRow][toCol].piece === null) {
+                    captured = nextSquares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece;
+                    nextSquares[highlightsToSave[1][0]][highlightsToSave[1][1]].piece = null;
                 }
                 break;
             // castle/break castle possibility if applicable
@@ -126,17 +131,22 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
             default:
         } 
         // clear highlights from previous move now that move is definitively being made
-        highlightsToSave.forEach(elt => squares[elt[0]][elt[1]].highlight = null);
+        highlightsToSave.forEach(elt => nextSquares[elt[0]][elt[1]].highlight = null);
         // set highlights for this move
-        squares[fromRow][fromCol] = {piece: null, highlight: "full"};
-        squares[toRow][toCol] = {piece: pieceToMove, highlight: "full"};
+        nextSquares[fromRow][fromCol] = {piece: null, highlight: "full"};
+        nextSquares[toRow][toCol] = {piece: pieceToMove, highlight: "full"};
         setHighlightsToSave([[fromRow, fromCol], [toRow, toCol]]);
+        // reflect highlightsToSave on opponent's board
+        await channel.sendEvent({
+            type: "set-highlights-to-save",
+            data: {fromRow, fromCol, toRow, toCol}
+        })
         // cleanup for pawn upgrade calling this function
         setShowUpgrade(false);
         setDestinationSquare(null);
         setUpgradeSquareSelected(null);
         // set to opponents move and record captured piece (if any)
-        onPlay(captured);
+        handlePlay(nextSquares, captured);
     }; 
 
     const pairInArray = (pair, array) => {
@@ -401,17 +411,26 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
         if (firstClick) {
             return;
         }
+        const rowSelected = squareSelected[0];
+        const colSelected = squareSelected[1];
         if (pairInArray([row, col], possibleMoves)) {
-            makeMove(squareSelected, [row, col], squares[squareSelected[0]][squareSelected[1]].piece);
+            const pieceToMove = squares[rowSelected][colSelected].piece;
+            makeMove(squareSelected, [row, col], pieceToMove);
         }
         setSquareSelected(null);
         setPossibleMoves([]);
-        setFirstClick(true);      
+        setFirstClick(true);    
     };
+
+    channel.on((event) => {
+        if (event.type === "set-highlights-to-save" && event.user.id !== client.userID) {
+            setHighlightsToSave([[event.data.fromRow, event.data.fromCol], [event.data.toRow, event.data.toCol]]);
+        }
+    })
     
     return (
       <>
-        <div className="board" style={{border: `25px ridge ${theme.ridge}`}}>
+        <div className="board" style={{border: `1.2rem ridge ${theme.ridge}`}}>
             <Row theme={theme} pieceSet={pieceSet} row={squares[0]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(0, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[1]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(1, col)} />
             <Row theme={theme} pieceSet={pieceSet} row={squares[2]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(2, col)} />
@@ -423,10 +442,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
         </div>
         <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "white's turn" : "black's turn")}</h1>
         <Modal show={showUpgrade} onHide={() => setShowUpgrade(false)}>
-            <Modal.Header closeButton style={{color: theme.black, background: theme.backgroundColor}}>
-                <Modal.Title>Select a piece</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{background: theme.backgroundColor}}>
+            <Modal.Header closeButton style={{background: theme.backgroundColor}}>
                 <button className="square" style={{background: theme.black}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WQueen" : "BQueen")}>
                     <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WQueen" : "BQueen"}.png`} width="75px" height="75px"/>
                 </button>
@@ -439,7 +455,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, onPlay }) {
                 <button className="square" style={{background: theme.white}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WKnight" : "BKnight")}>
                     <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whitesTurn ? "WKnight" : "BKnight"}.png`} width="75px" height="75px"/>
                 </button>
-            </Modal.Body>
+            </Modal.Header>
         </Modal>
       </>
     );
