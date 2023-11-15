@@ -12,7 +12,7 @@ const initBoard = [ // TODO: turn this into a generative function, highlight def
     [{piece: "WRook", highlight: null}, {piece: "WKnight", highlight: null}, {piece: "WBishop", highlight: null}, {piece: "WQueen", highlight: null}, {piece: "WKing", highlight: null}, {piece: "WBishop", highlight: null}, {piece: "WKnight", highlight: null}, {piece: "WRook", highlight: null}],
 ];
 
-function ChessGame({ channel, theme, pieceSet }) {
+function ChessGame({ channel, theme, pieceSet, opponentName, playerIsWhite }) {
     const [playersJoined, setPlayersJoined] = useState(channel.state.watcher_count === 2);
     const [history, setHistory] = useState([initBoard]);
     const [currentMove, setCurrentMove] = useState(0);
@@ -20,6 +20,7 @@ function ChessGame({ channel, theme, pieceSet }) {
     const currentSquares = history[currentMove];
     const [whiteCapturedPieces, setWhiteCapturedPieces] = useState([]);
     const [blackCapturedPieces, setBlackCapturedPieces] = useState([]);
+    
     const { client } = useChatContext();
 
     // if sync is false, the move is being made by the person in turn and needs to be reflected on opponent's board; if true, simply reflecting change on opponent's board
@@ -40,32 +41,38 @@ function ChessGame({ channel, theme, pieceSet }) {
         }
     }
 
+    // runs when connection is made to awaiting channel
     channel.on("user.watching.start", event => {
         setPlayersJoined(event.watcher_count === 2);
     });
 
     channel.on((event) => {
-        if (event.type === "game-move" && event.user.id !== client.userID) {
+        if (event.user.id !== client.userID && event.type === "game-move") {
             handlePlay(event.data.nextSquares, event.data.captured, true);
         }
     })
 
-    if (!playersJoined) {
-        return <h1>Waiting for opponent to join...</h1>
-    }
     return (
         <div style={{color: theme.black}}>
-            <div className="column1">
-                <Board theme={theme} pieceSet={pieceSet} whitesTurn={whitesTurn} squares={currentSquares} handlePlay={handlePlay} />
-            </div>
-            <div className="column2">
-                <h2>White Captured Pieces:</h2>
-                {whiteCapturedPieces.map(elt => <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${elt}.png`} width="60px" height="60px"/>)}
-                <div style={{position:"absolute", top:"140px"}}>
-                    <h2>Black Captured Pieces:</h2>
-                    {blackCapturedPieces.map(elt => <img src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${elt}.png`} width="60px" height="60px"/>)}
+            {playersJoined ? (
+                <>
+                    <div className="column1">
+                        <Board theme={theme} pieceSet={pieceSet} whitesTurn={whitesTurn} opponentName={opponentName} playerIsWhite={playerIsWhite} squares={currentSquares} handlePlay={handlePlay} />
+                    </div>
+                    <div className="column2">
+                        <h2>White Captured Pieces:</h2>
+                        {[...Array(whiteCapturedPieces.length).keys()].map(i => {return (<img key={i} src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${whiteCapturedPieces[i]}.png`} width="60px" height="60px"/>)})}
+                        <div style={{position:"absolute", top:"200px"}}>
+                            <h2>Black Captured Pieces:</h2>
+                            {[...Array(blackCapturedPieces.length).keys()].map(i => {return (<img key={i} src={`${process.env.PUBLIC_URL}/pieces/${pieceSet}/${blackCapturedPieces[i]}.png`} width="60px" height="60px"/>)})}
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <div style={{textAlign: "center"}}>
+                    <h1>Waiting for {opponentName} to join...</h1>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

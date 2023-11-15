@@ -11,7 +11,7 @@ function blackPiece(piece) {
     return piece === "BRook" || piece === "BKnight" || piece === "BBishop" || piece === "BQueen" || piece === "BKing" || piece === "BPawn";
 }
 
-function Board({ theme, pieceSet, whitesTurn, squares, handlePlay/*, highlightsToSave, setHighlightsToSave*/ }) {
+function Board({ theme, pieceSet, whitesTurn, opponentName, playerIsWhite, squares, handlePlay }) {
     const [firstClick, setFirstClick] = useState(true);
     const [squareSelected, setSquareSelected] = useState(null);
     const [possibleMoves, setPossibleMoves] = useState([]);
@@ -37,7 +37,6 @@ function Board({ theme, pieceSet, whitesTurn, squares, handlePlay/*, highlightsT
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if ((whitesTurn && whitePiece(squares[i][j].piece)) || (!whitesTurn && blackPiece(squares[i][j].piece))) {
-                    // IMPORTANT Make separate parameter for highlight as third parameter should be true
                     if (getPossibleMoves(i, j, true, false).length > 0) {
                         return;
                     }
@@ -48,11 +47,10 @@ function Board({ theme, pieceSet, whitesTurn, squares, handlePlay/*, highlightsT
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if ((whitesTurn && blackPiece(squares[i][j].piece)) || (!whitesTurn && whitePiece(squares[i][j].piece))) {
-                    // IMPORTANT Make separate parameter for highlight as third parameter should be true
                     let possibleMoves = getPossibleMoves(i, j, true, false);
                     for (let k = 0; k < possibleMoves.length; k++) {
                         if (squares[possibleMoves[k][0]][possibleMoves[k][1]].piece === (whitesTurn ? "WKing" : "BKing")) {
-                            setGameOverStatus(whitesTurn ? "BLACK WINS!" : "WHITE WINS!");
+                            setGameOverStatus(whitesTurn === playerIsWhite ? `${opponentName} Wins!` : "You Win!");
                             return;
                         }
                     }
@@ -383,8 +381,7 @@ function Board({ theme, pieceSet, whitesTurn, squares, handlePlay/*, highlightsT
     };
     
     const handleClick = (row, col) => {
-
-        if (gameOverStatus) {
+        if (gameOverStatus || (whitesTurn !== playerIsWhite)) {
             return;
         }
 
@@ -431,16 +428,13 @@ function Board({ theme, pieceSet, whitesTurn, squares, handlePlay/*, highlightsT
     return (
       <>
         <div className="board" style={{border: `1.2rem ridge ${theme.ridge}`}}>
-            <Row theme={theme} pieceSet={pieceSet} row={squares[0]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(0, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[1]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(1, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[2]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(2, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[3]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(3, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[4]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(4, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[5]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(5, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[6]} firstSquareIsWhite={true} onRowClick={(col) => handleClick(6, col)} />
-            <Row theme={theme} pieceSet={pieceSet} row={squares[7]} firstSquareIsWhite={false} onRowClick={(col) => handleClick(7, col)} />
+            {[...Array(8).keys()].map((i) => {
+                return (
+                    <Row key={i} theme={theme} pieceSet={pieceSet} playerIsWhite={playerIsWhite} row={squares[playerIsWhite ? i : 7 - i]} firstSquareIsWhite={i%2 === 0} onRowClick={(col) => handleClick(playerIsWhite ? i : 7 - i, col)} />
+                )
+            })}
         </div>
-        <h1>{gameOverStatus ? gameOverStatus : (whitesTurn ? "white's turn" : "black's turn")}</h1>
+        <h1>{gameOverStatus || (whitesTurn === playerIsWhite ? "Your Turn" : `${opponentName}'s Turn`)}</h1>
         <Modal show={showUpgrade} onHide={() => setShowUpgrade(false)}>
             <Modal.Header closeButton style={{background: theme.backgroundColor}}>
                 <button className="square" style={{background: theme.black}} onClick={() => makeMove(upgradeSquareSelected, destinationSquare, whitesTurn ? "WQueen" : "BQueen")}>

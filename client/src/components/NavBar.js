@@ -6,7 +6,7 @@ export const javaChipTheme = {name: "java chip", white: "#e0daca", black: "#8a6a
 const matchaTheme = {name: "matcha", white: "#e0daca", black: "#5d7854", ridge: "#6d8665", backgroundColor: "#aebcaa"};
 const taroTheme = {name: "taro", white: "#e0daca", black: "#7a677c", ridge: "#877689", backgroundColor: "#bdb3be"}
 const mangoTheme = {name: "mango", white: "#e0daca", black: "#d69f47", ridge: "#daa959", backgroundColor: "#ebcfa3"};
-const vanillaBeanTheme = {name: "vanilla bean", white: "#e0daca", black: "", ridge: "", backgroundColor: ""};
+const vanillaBeanTheme = {name: "vanilla bean", white: "#e0daca", black: "", ridge: "", backgroundColor: "#ffffff"};
 const strawberryMilkTheme = {name: "strawberry milk", white: "#e0daca", black: "#bb8484", ridge: "#c29090", backgroundColor: "#ddc2c2"};
 const lavenderMilkTheme = {name: "lavender milk", white: "#e0daca", black: "#8c92ac", ridge: "#989db4", backgroundColor: "#c6c9d6"};
 
@@ -46,12 +46,12 @@ function NavBar({ theme, setTheme, game, pieceSet, setPieceSet, logout }) {
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <NavDropdown title={"flavor: " + theme.name}>
-                        <NavDropdown.Item onClick={() => setTheme(matchaTheme)} active={theme === matchaTheme}>matcha</NavDropdown.Item>
-                        <NavDropdown.Item onClick={() => setTheme(taroTheme)} active={theme === taroTheme}>taro</NavDropdown.Item>
-                        <NavDropdown.Item onClick={() => setTheme(mangoTheme)} active={theme === mangoTheme}>mango</NavDropdown.Item>
-                        <NavDropdown.Item onClick={() => setTheme(vanillaBeanTheme)} active={theme === vanillaBeanTheme}>vanilla bean</NavDropdown.Item>
-                        <NavDropdown.Item onClick={() => setTheme(strawberryMilkTheme)} active={theme === strawberryMilkTheme}>strawberry milk</NavDropdown.Item>
-                        <NavDropdown.Item onClick={() => setTheme(lavenderMilkTheme)} active={theme === lavenderMilkTheme}>lavender milk</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(matchaTheme)} >matcha</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(taroTheme)} >taro</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(mangoTheme)} >mango</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(vanillaBeanTheme)} >vanilla bean</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(strawberryMilkTheme)} >strawberry milk</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => setTheme(lavenderMilkTheme)} >lavender milk</NavDropdown.Item>
                         <NavDropdown.Divider />
                         <NavDropdown.Item onClick={() => setTheme(javaChipTheme)} active={theme === javaChipTheme}>java chip</NavDropdown.Item>
                     </NavDropdown>
