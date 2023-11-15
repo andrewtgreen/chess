@@ -16,8 +16,8 @@ function App() {
     const token = cookies.get("token");
     const client = StreamChat.getInstance(process.env.REACT_APP_STREAM_API_KEY);
     const [isAuth, setIsAuth] = useState(false);
-    const [theme, setTheme] = useState(javaChipTheme);
-    const [pieceSet, setPieceSet] = useState("original");
+    const [theme, setTheme] = useState(cookies.get("theme") || javaChipTheme);
+    const [pieceSet, setPieceSet] = useState(cookies.get("pieceSet") || "original");
 
     const logout = () => {
         cookies.remove("token");
@@ -26,11 +26,27 @@ function App() {
         cookies.remove("lastName");
         cookies.remove("hashedPassword");
         cookies.remove("username");
+        // will not remove theme or pieceSet cookies so that these can be persistent on browser until another user logs in
         client.disconnectUser();
         setIsAuth(false);
     };
 
-    useEffect(() => {document.body.style = `background: ${theme.backgroundColor}`;}, [theme]);
+    // set cookie when theme is changed so this is permanent for session, and update user to reflect this change/render it permanently for this user
+    useEffect(() => {
+        document.body.style = `background: ${theme.backgroundColor}`;
+        if (client.userID) {
+            client.partialUpdateUser({id: client.userID, set: {theme: theme}});
+        }
+        cookies.set("theme", theme);
+    }, [theme]);
+
+    // update user when pieceSet is changed to reflect this change/render it permanently for this user
+    useEffect(() => {
+        if (client.userID) {
+            client.partialUpdateUser({id: client.userID, set: {pieceSet: pieceSet}});
+        }
+        cookies.set("pieceSet", pieceSet);
+    }, [pieceSet]);
 
     useEffect(() => {
         if (token) {
@@ -42,6 +58,8 @@ function App() {
                 hashedPassword: cookies.get("hashedPassword")
             }, token).then(user => {
                 setIsAuth(true);
+                setTheme(user.me.theme || theme);
+                setPieceSet(user.me.pieceSet || pieceSet);
             })
         }
     }, [isAuth]);
@@ -52,7 +70,6 @@ function App() {
             <Chat client={client}>
                 <JoinGame theme={theme} pieceSet={pieceSet} />
             </Chat>
-            {/* <ChessGame theme={theme} pieceSet={pieceSet} /> */}
             <Modal
                 show={!isAuth}
                 backdrop="static"
